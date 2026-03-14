@@ -10,6 +10,7 @@ function Navbar() {
         <li>
           <Link to="/">Home</Link>
         </li>
+
         <li>
           <Link to="/races">Races</Link>
         </li>
@@ -20,6 +21,10 @@ function Navbar() {
 
         <li>
           <Link to="/backgrounds">Backgrounds</Link>
+        </li>
+
+        <li>
+          <Link to="/spells">Spells</Link>
         </li>
 
         <li>
