@@ -1,0 +1,144 @@
+.spells-page {
+  min-height: 100vh;
+  padding: 32px 20px;
+}
+
+.spells-page__container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.spells-page__title {
+  font-size: 48px;
+  margin: 0 0 12px;
+}
+
+.spells-page__description {
+  font-size: 18px;
+  margin: 0 0 24px;
+}
+
+.spells-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.spells-page__filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spells-page__label {
+  font-weight: 600;
+}
+
+.spells-page__select {
+  min-width: 180px;
+  padding: 8px 12px;
+  border: 1px solid #999;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.spells-page__status {
+  margin: 16px 0;
+  font-size: 16px;
+}
+
+.spells-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.spell-card {
+  border: 1px solid #999;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.spell-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.spell-card:focus {
+  outline: 2px solid #222;
+  outline-offset: 2px;
+}
+
+.spell-card--selected {
+  border: 2px solid #222;
+}
+
+.spell-card__title {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.spell-card__meta {
+  margin: 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.spells-page__details {
+  border: 1px solid #999;
+  border-radius: 12px;
+  padding: 24px;
+  background-color: #fff;
+}
+
+.spells-page__details-title {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 32px;
+}
+
+.spells-page__details-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.spells-page__detail-text {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.spells-page__empty {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+@media screen and (max-width: 768px) {
+  .spells-page {
+    padding: 24px 16px;
+  }
+
+  .spells-page__title {
+    font-size: 36px;
+  }
+
+  .spells-page__description {
+    font-size: 16px;
+  }
+
+  .spells-page__select {
+    min-width: 100%;
+  }
+
+  .spells-page__filter-group {
+    width: 100%;
+  }
+}
