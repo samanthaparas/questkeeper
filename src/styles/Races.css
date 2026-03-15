@@ -1,0 +1,134 @@
+.races-page {
+  min-height: 100vh;
+  padding: 32px 20px;
+}
+
+.races-page__container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.races-page__title {
+  margin: 0 0 12px;
+  font-size: 48px;
+}
+
+.races-page__description {
+  margin: 0 0 24px;
+  font-size: 18px;
+  color: #555;
+}
+
+.races-page__layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.races-page__list-panel,
+.races-page__details-panel {
+  background-color: #f8f8f8;
+  border: 1px solid #d3d3d3;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.races-page__panel-title {
+  margin: 0 0 20px;
+  font-size: 32px;
+}
+
+.races-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+.races-page__list-item {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #c8c2b8;
+  border-radius: 10px;
+  background-color: #e7e0d5;
+  text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.races-page__list-item:hover {
+  background-color: #ddd3c4;
+  transform: translateY(-1px);
+}
+
+.races-page__list-item:focus {
+  outline: 2px solid #222;
+  outline-offset: 2px;
+}
+
+.races-page__list-item--selected {
+  border: 2px solid #222;
+  background-color: #d8cbb8;
+}
+
+.races-page__details-title {
+  margin: 0 0 16px;
+  font-size: 36px;
+}
+
+.races-page__placeholder,
+.races-page__detail-text {
+  margin: 0 0 16px;
+  line-height: 1.6;
+  font-size: 17px;
+}
+
+.races-page__subrace-title {
+  margin: 28px 0 16px;
+  font-size: 24px;
+}
+
+.races-page__subrace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.races-page__subrace-card {
+  border: 1px solid #c8c2b8;
+  border-radius: 12px;
+  background-color: #e7e0d5;
+  padding: 16px;
+}
+
+.races-page__subrace-name {
+  margin: 0 0 10px;
+  font-size: 20px;
+}
+
+@media screen and (max-width: 768px) {
+  .races-page {
+    padding: 24px 16px;
+  }
+
+  .races-page__title {
+    font-size: 36px;
+  }
+
+  .races-page__description {
+    font-size: 16px;
+  }
+
+  .races-page__panel-title {
+    font-size: 28px;
+  }
+
+  .races-page__details-title {
+    font-size: 30px;
+  }
+}

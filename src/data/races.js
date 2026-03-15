@@ -1,7 +1,7 @@
 export const races = [
   {
     id: 1,
-    name: "Aarokocra",
+    name: "Aarakocra",
     preview:
       "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
     description:
