@@ -2,7 +2,7 @@ import { useState } from "react";
 import { races } from "../data/races";
 
 function Races() {
-  const [hoveredRace, sethoveredRace] = useState(null);
+  const [hoveredRace, setHoveredRace] = useState(null);
   const [selectedRace, setSelectedRace] = useState(null);
 
   return (
@@ -45,13 +45,19 @@ function Races() {
           <h2>{selectedRace.name}</h2>
           <p>{selectedRace.description}</p>
 
-          <h3>Subraces</h3>
-          {selectedRace.subraces.map((subrace) => (
-            <div key={subrace.id} className="subrace-card">
-              <strong>{subrace.name}</strong>
-              <p>{subrace.preview}</p>
-            </div>
-          ))}
+          {selectedRace.subraces?.length > 0 ? (
+            <>
+              <h3>Subraces</h3>
+              {selectedRace.subraces.map((subrace) => (
+                <div key={subrace.id} className="subrace-card">
+                  <strong>{subrace.name}</strong>
+                  <p>{subrace.preview}</p>
+                </div>
+              ))}
+            </>
+          ) : (
+            <p>No subraces available for this race.</p>
+          )}
         </section>
       )}
     </main>
