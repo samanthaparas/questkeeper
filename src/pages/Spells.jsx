@@ -3,10 +3,11 @@ import { getSpells, getSpellDetails } from "../services/api";
 import "../styles/Spells.css";
 
 function Spells() {
-  const [spells, setSpells] = useState([]);
+  const [detailedSpells, setDetailedSpells] = useState([]);
   const [selectedSpell, setSelectedSpell] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -17,7 +18,14 @@ function Spells() {
 
     getSpells({ level: selectedLevel, school: selectedSchool })
       .then((data) => {
-        setSpells(data.results || []);
+        const spellList = data.results || [];
+
+        return Promise.all(
+          spellList.map((spell) => getSpellDetails(spell.index)),
+        );
+      })
+      .then((spellDetails) => {
+        setDetailedSpells(spellDetails);
       })
       .catch((err) => {
         setErrorMessage("Failed to load spells.");
@@ -49,12 +57,23 @@ function Spells() {
     return `Level ${level}`;
   }
 
+  const filteredSpells = detailedSpells.filter((spell) => {
+    if (!selectedClass) {
+      return true;
+    }
+
+    return spell.classes?.some(
+      (spellClass) => spellClass.index === selectedClass,
+    );
+  });
+
   return (
     <main className="spells-page">
       <section className="spells-page__container">
         <h1 className="spells-page__title">Spells</h1>
         <p className="spells-page__description">
-          Browse spells by level and school, then click a spell to view details.
+          Browse spells by level, class, and school, then click a spell to view
+          details.
         </p>
 
         <section className="spells-page__filters">
@@ -83,6 +102,33 @@ function Spells() {
           </div>
 
           <div className="spells-page__filter-group">
+            <label className="spells-page__label" htmlFor="spell-class">
+              Class
+            </label>
+            <select
+              id="spell-class"
+              className="spells-page__select"
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="artificer">Artificer</option>
+              <option value="barbarian">Barbarian</option>
+              <option value="bard">Bard</option>
+              <option value="cleric">Cleric</option>
+              <option value="druid">Druid</option>
+              <option value="fighter">Fighter</option>
+              <option value="monk">Monk</option>
+              <option value="paladin">Paladin</option>
+              <option value="ranger">Ranger</option>
+              <option value="rogue">Rogue</option>
+              <option value="sorcerer">Sorcerer</option>
+              <option value="warlock">Warlock</option>
+              <option value="wizard">Wizard</option>
+            </select>
+          </div>
+
+          <div className="spells-page__filter-group">
             <label className="spells-page__label" htmlFor="spell-school">
               School
             </label>
@@ -105,23 +151,17 @@ function Spells() {
           </div>
         </section>
 
-        {isLoading && (
-          <p className="spells-page__status">Loading spells...</p>
+        {isLoading && <p className="spells-page__status">Loading spells...</p>}
+
+        {errorMessage && <p className="spells-page__status">{errorMessage}</p>}
+
+        {!isLoading && !errorMessage && filteredSpells.length === 0 && (
+          <p className="spells-page__empty">No spells matched your filters.</p>
         )}
 
-        {errorMessage && (
-          <p className="spells-page__status">{errorMessage}</p>
-        )}
-
-        {!isLoading && !errorMessage && spells.length === 0 && (
-          <p className="spells-page__empty">
-            No spells matched your filters.
-          </p>
-        )}
-
-        {!isLoading && !errorMessage && spells.length > 0 && (
+        {!isLoading && !errorMessage && filteredSpells.length > 0 && (
           <section className="spells-page__grid">
-            {spells.map((spell) => {
+            {filteredSpells.map((spell) => {
               const isSelected = selectedSpell?.index === spell.index;
 
               return (
@@ -133,7 +173,8 @@ function Spells() {
                 >
                   <h2 className="spell-card__title">{spell.name}</h2>
                   <p className="spell-card__meta">
-                    Click to view details
+                    {spell.level === 0 ? "Cantrip" : `Level ${spell.level}`} •{" "}
+                    {spell.school?.name}
                   </p>
                 </button>
               );
@@ -143,9 +184,7 @@ function Spells() {
 
         {selectedSpell && (
           <section className="spells-page__details">
-            <h2 className="spells-page__details-title">
-              {selectedSpell.name}
-            </h2>
+            <h2 className="spells-page__details-title">{selectedSpell.name}</h2>
 
             <div className="spells-page__details-list">
               <p className="spells-page__detail-text">
@@ -164,7 +203,8 @@ function Spells() {
                 <strong>Duration:</strong> {selectedSpell.duration}
               </p>
               <p className="spells-page__detail-text">
-                <strong>Components:</strong> {selectedSpell.components?.join(", ")}
+                <strong>Components:</strong>{" "}
+                {selectedSpell.components?.join(", ")}
               </p>
             </div>
 
