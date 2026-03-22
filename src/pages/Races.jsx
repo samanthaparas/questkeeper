@@ -5,8 +5,14 @@ import "../styles/Races.css";
 function Races() {
   const [hoveredRace, setHoveredRace] = useState(null);
   const [selectedRace, setSelectedRace] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const activeRace = selectedRace || hoveredRace;
+  const isShowingSelectedRace = selectedRace?.id === activeRace?.id;
+
+  const filteredRaces = races.filter((race) =>
+    race.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <main className="races-page">
@@ -20,25 +26,42 @@ function Races() {
           <section className="races-page__list-panel">
             <h2 className="races-page__panel-title">Common Races</h2>
 
-            <div className="races-page__list">
-              {races.map((race) => {
-                const isSelected = selectedRace?.id === race.id;
+            <input
+              type="text"
+              className="races-page__search"
+              placeholder="Search races..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-                return (
-                  <button
-                    key={race.id}
-                    type="button"
-                    className={`races-page__list-item ${
-                      isSelected ? "races-page__list-item--selected" : ""
-                    }`}
-                    onMouseEnter={() => setHoveredRace(race)}
-                    onMouseLeave={() => setHoveredRace(null)}
-                    onClick={() => setSelectedRace(race)}
-                  >
-                    {race.name}
-                  </button>
-                );
-              })}
+            <div className="races-page__list">
+              {filteredRaces.length > 0 ? (
+                filteredRaces.map((race) => {
+                  const isSelected = selectedRace?.id === race.id;
+
+                  return (
+                    <button
+                      key={race.id}
+                      type="button"
+                      className={`races-page__list-item ${
+                        isSelected ? "races-page__list-item--selected" : ""
+                      }`}
+                      onMouseEnter={() => setHoveredRace(race)}
+                      onMouseLeave={() => setHoveredRace(null)}
+                      onFocus={() => setHoveredRace(race)}
+                      onBlur={() => setHoveredRace(null)}
+                      onClick={() => setSelectedRace(race)}
+                      aria-pressed={isSelected}
+                    >
+                      {race.name}
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="races-page__empty-list">
+                  No races match your search.
+                </p>
+              )}
             </div>
           </section>
 
@@ -47,16 +70,32 @@ function Races() {
               <>
                 <h2 className="races-page__panel-title">Race Details</h2>
                 <p className="races-page__placeholder">
-                  Hover over a race to preview it, or click a race to view full
-                  details.
+                  Hover over a race for a quick preview, or click a race to lock
+                  in its full details and subraces.
                 </p>
               </>
             ) : (
               <>
-                <h2 className="races-page__details-title">{activeRace.name}</h2>
+                <div className="races-page__details-header">
+                  <h2 className="races-page__details-title">
+                    {activeRace.name}
+                  </h2>
+
+                  {selectedRace && (
+                    <button
+                      type="button"
+                      classname="races-page__clear-button"
+                      onClick={() => setSelectedRace(null)}
+                    >
+                      Clear selection
+                    </button>
+                  )}
+                </div>
 
                 <p className="races-page__detail-text">
-                  {selectedRace ? activeRace.description : activeRace.preview}
+                  {isShowingSelectedRace
+                    ? activeRace.description
+                    : activeRace.preview}
                 </p>
 
                 {selectedRace && activeRace.subraces?.length > 0 && (

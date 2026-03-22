@@ -1,3 +1,7 @@
+.races-content__grid {
+  display: grid;
+}
+
 .races-page {
   min-height: 100vh;
   padding: 32px 20px;
@@ -32,11 +36,32 @@
   border: 1px solid #d3d3d3;
   border-radius: 16px;
   padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.races-page__details-panel {
+  min-height: 300px;
 }
 
 .races-page__panel-title {
   margin: 0 0 20px;
   font-size: 32px;
+}
+
+.races-page__search {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #c8c2b8;
+  border-radius: 10px;
+  background-color: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.races-page__search:focus {
+  outline: 2px solid #222;
+  outline-offset: 2px;
 }
 
 .races-page__list {
@@ -45,6 +70,7 @@
   gap: 12px;
   max-height: 650px;
   overflow-y: auto;
+  padding-right: 4px;
 }
 
 .races-page__list-item {
@@ -58,12 +84,15 @@
   cursor: pointer;
   transition:
     background-color 0.15s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .races-page__list-item:hover {
   background-color: #ddd3c4;
   transform: translateY(-1px);
+  border-color: #b7ae9f;
 }
 
 .races-page__list-item:focus {
@@ -74,11 +103,45 @@
 .races-page__list-item--selected {
   border: 2px solid #222;
   background-color: #d8cbb8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.races-page__details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .races-page__details-title {
-  margin: 0 0 16px;
+  margin: 0;
   font-size: 36px;
+}
+
+.races-page__clear-button {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid #c8c2b8;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.races-page__clear-button:hover {
+  background-color: #f1ece4;
+  border-color: #b7ae9f;
+  transform: translateY(-1px);
+}
+
+.races-page__clear-button:focus {
+  outline: 2px solid #222;
+  outline-offset: 2px;
 }
 
 .races-page__placeholder,
@@ -86,6 +149,12 @@
   margin: 0 0 16px;
   line-height: 1.6;
   font-size: 17px;
+}
+
+.races-page__empty-list {
+  margin: 0;
+  font-size: 15px;
+  color: #666;
 }
 
 .races-page__subrace-title {
@@ -111,6 +180,14 @@
   font-size: 20px;
 }
 
+.races-page__subrace-preview {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: #444;
+}
+
 @media screen and (max-width: 768px) {
   .races-page {
     padding: 24px 16px;
@@ -130,5 +207,18 @@
 
   .races-page__details-title {
     font-size: 30px;
+  }
+
+  .races-page__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .races-page__details-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .races-page__clear-button {
+    width: fit-content;
   }
 }

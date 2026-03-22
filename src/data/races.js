@@ -3,9 +3,9 @@ export const races = [
     id: 1,
     name: "Aarakocra",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Aarakocra are bird-like humanoids who soar through the skies with powerful wings. They come from high mountain peaks and airy planes, where life is fast, free, and always in motion. They tend to value freedom above all else and can feel uncomfortable staying in one place for too long.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Aarakocra are bird-like humanoids who soar through the skies with powerful wings. They come from high mountain peaks and airy planes, where life is fast, free, and always in motion. They tend to value freedom above all else and can feel uncomfortable staying in one place for too long.",
     subraces: [],
   },
 
@@ -13,9 +13,9 @@ export const races = [
     id: 2,
     name: "Aasimar",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Aasimar are humans with a touch of celestial power in their blood. They have subtle, otherworldly features. They are usually connected in some way to a divine being, which can guide them or influence their path.There are three types: Fallen, Protector, and Scourge.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Aasimar are humans with a touch of celestial power in their blood. They have subtle, otherworldly features. They are usually connected in some way to a divine being, which can guide them or influence their path.There are three types: Fallen, Protector, and Scourge.",
     subraces: [
       {
         id: 1,
@@ -48,9 +48,29 @@ export const races = [
     id: 3,
     name: "Bugbear",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Bugbears are large, hairy goblinoids known for their strength, stealth, and surprising cunning. Even though they look big and intimidating, they’re not just brute fighters—they’re also excellent at ambushing enemies. They often come from harsh, tribal societies where survival depends on strength and clever tactics.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Bugbears are large, hairy goblinoids known for their strength, stealth, and surprising cunning. Even though they look big and intimidating, they’re not just brute fighters—they’re also excellent at ambushing enemies. They often come from harsh, tribal societies where survival depends on strength and clever tactics.",
+    subraces: [],
+  },
+
+  {
+    id: 1,
+    name: "Centaur",
+    preview:
+      "Centaurs are beings with the upper body of a human and the lower body of a horse. They are strongly connected to nature, often living in open plains, forests, or other wild areas where they have room to roam freely. Because of their unique bodies, they value movement, freedom, and physical strength.",
+    description:
+      "Centaurs are beings with the upper body of a human and the lower body of a horse. They are strongly connected to nature, often living in open plains, forests, or other wild areas where they have room to roam freely. Because of their unique bodies, they value movement, freedom, and physical strength.",
+    subraces: [],
+  },
+
+  {
+    id: 1,
+    name: "Changeling",
+    preview:
+      "Changelings are shapeshifters who can alter their appearance at will, taking on the look of different people whenever they choose. In their natural form, they have pale skin, blank white eyes, and featureless faces, but they rarely stay that way for long. Many develop identities with personas to accompany each shape they take.",
+    description:
+      "Changelings are shapeshifters who can alter their appearance at will, taking on the look of different people whenever they choose. In their natural form, they have pale skin, blank white eyes, and featureless faces, but they rarely stay that way for long. Many develop identities with personas to accompany each shape they take.",
     subraces: [],
   },
 
@@ -58,9 +78,9 @@ export const races = [
     id: 4,
     name: "Dragonborn",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Dragonborn are humanoids with draconic features—scales, a strong build, and a proud, dragon-like presence. Many carry themselves with a sense of honor and strength. They’re granted special powers depending on the shade of their chromatic, metallic, or gem-colored draconic ancestor.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Dragonborn are humanoids with draconic features—scales, a strong build, and a proud, dragon-like presence. Many carry themselves with a sense of honor and strength. They’re granted special powers depending on the shade of their chromatic, metallic, or gem-colored draconic ancestor.",
     subraces: [
       {
         id: 1,
@@ -93,9 +113,9 @@ export const races = [
     id: 5,
     name: "Dwarf",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Dwarves are sturdy, hardy humanoids known for their resilience, craftsmanship, and deep connection to stone and mountains. They often live in underground cities carved into rock, valuing tradition, loyalty, and hard work. There are three types: Duergar, Hill, and Mountain.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Dwarves are sturdy, hardy humanoids known for their resilience, craftsmanship, and deep connection to stone and mountains. They often live in underground cities carved into rock, valuing tradition, loyalty, and hard work. There are three types: Duergar, Hill, and Mountain.",
     subraces: [
       {
         id: 1,
@@ -128,20 +148,12 @@ export const races = [
     id: 6,
     name: "Elf",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Elves are graceful, long-lived humanoids with a deep connection to magic, nature, and the passage of time. They often have sharp features, pointed ears, and an otherworldly presence that values patience, beauty, and knowledge. There are six types: Dark, Eladrin, High, Wood, Sea, and Shadar-Kai.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Elves are graceful, long-lived humanoids with a deep connection to magic, nature, and the passage of time. They often have sharp features, pointed ears, and an otherworldly presence that values patience, beauty, and knowledge. There are six types: Dark, Eladrin, High, Wood, Sea, and Shadar-Kai.",
     subraces: [
       {
         id: 1,
-        name: "Astral",
-        preview:
-          "A clever and subtle bloodline associated with deception and heists.",
-        description:
-          "Tieflings of Glasya often have talents suited for stealth, trickery, and social manipulation.",
-      },
-      {
-        id: 2,
         name: "Dark",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -149,7 +161,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 3,
+        id: 2,
         name: "Eladrin (Autumn, Spring, Summer, Winter)",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -157,7 +169,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 4,
+        id: 3,
         name: "High",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -165,7 +177,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 5,
+        id: 4,
         name: "Wood",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -173,7 +185,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 7,
+        id: 5,
         name: "Sea",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -181,7 +193,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 8,
+        id: 6,
         name: "Shadar-Kai",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -195,9 +207,9 @@ export const races = [
     id: 7,
     name: "Fairy",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Fairies are small, magical beings from the Feywild, a whimsical and unpredictable realm tied to nature and magic. They often have insect-like wings and come in many colors, but just like the Feywild their personalities vary wildly.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Fairies are small, magical beings from the Feywild, a whimsical and unpredictable realm tied to nature and magic. They often have insect-like wings and come in many colors, but just like the Feywild their personalities vary wildly.",
     subraces: [],
   },
 
@@ -205,9 +217,9 @@ export const races = [
     id: 8,
     name: "Firbolg",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Firbolgs are large, gentle humanoids with a strong connection to nature and the forests they call home. They often have features that feel animal-like—such as broad builds, soft expressions, and hints of fur or unusual ears. Despite their size, they are known for being quiet, kind, and protective rather than aggressive.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Firbolgs are large, gentle humanoids with a strong connection to nature and the forests they call home. They often have features that feel animal-like—such as broad builds, soft expressions, and hints of fur or unusual ears. Despite their size, they are known for being quiet, kind, and protective rather than aggressive.",
     subraces: [],
   },
 
@@ -215,9 +227,9 @@ export const races = [
     id: 9,
     name: "Genasi",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Descendants of genies, they embody many of the magical traits of their otherworldly elemental ancestors. Likewise, their appearance and personality take after their element. There are four types: air, earth, fire, and water.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Descendants of genies, they embody many of the magical traits of their otherworldly elemental ancestors. Likewise, their appearance and personality take after their element. There are four types: air, earth, fire, and water.",
     subraces: [
       {
         id: 1,
@@ -258,9 +270,9 @@ export const races = [
     id: 10,
     name: "Gith",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Gith are tall, lean people with psychic powers known for their intelligence, discipline, and fierce independence. They have a strong sense of purpose and are usually driven by personal or ancestral goals. They split into two types: Githyanki and Githzerai.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Gith are tall, lean people with psychic powers known for their intelligence, discipline, and fierce independence. They have a strong sense of purpose and are usually driven by personal or ancestral goals. They split into two types: Githyanki and Githzerai.",
     subraces: [
       {
         id: 1,
@@ -285,9 +297,9 @@ export const races = [
     id: 11,
     name: "Gnome",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Gnomes are small, curious humanoids known for their cleverness, creativity, and love of learning. They often have bright eyes, expressive faces, and a mischievous or cheerful personality. Many gnomes live in close-knit communities and enjoy tinkering, inventing, or exploring magical mysteries. There are three types: Deep, Forest, and Rock.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Gnomes are small, curious humanoids known for their cleverness, creativity, and love of learning. They often have bright eyes, expressive faces, and a mischievous or cheerful personality. Many gnomes live in close-knit communities and enjoy tinkering, inventing, or exploring magical mysteries. There are three types: Deep, Forest, and Rock.",
     subraces: [
       {
         id: 1,
@@ -320,9 +332,9 @@ export const races = [
     id: 12,
     name: "Goblin",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Goblins are small, quick, and clever and are known for their agility and resourcefulness. They are often seen as mischievous or sneaky, living in hidden communities or on the fringes of larger societies. Despite their size, they can be surprisingly tough and cunning.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Goblins are small, quick, and clever and are known for their agility and resourcefulness. They are often seen as mischievous or sneaky, living in hidden communities or on the fringes of larger societies. Despite their size, they can be surprisingly tough and cunning.",
     subraces: [],
   },
 
@@ -330,9 +342,9 @@ export const races = [
     id: 13,
     name: "Goliath",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Goliaths are towering, muscular humanoids who thrive in harsh mountain environments. They are strong, tough, and built for endurance, often competing with each other in feats of strength and skill. Life for a Goliath is about survival, honor, and pushing your limits.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Goliaths are towering, muscular humanoids who thrive in harsh mountain environments. They are strong, tough, and built for endurance, often competing with each other in feats of strength and skill. Life for a Goliath is about survival, honor, and pushing your limits.",
     subraces: [],
   },
 
@@ -340,9 +352,9 @@ export const races = [
     id: 14,
     name: "Half-Elf",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Half-Elves are humans with some elven heritage, blending the traits of both races. They often have slightly pointed ears, graceful features, and an otherworldly charm, while still feeling approachable and versatile like humans. There are six types: Dark, Eladrin, High, Wood, Sea, and Shadar-Kai.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Half-Elves are humans with some elven heritage, blending the traits of both races. They often have slightly pointed ears, graceful features, and an otherworldly charm, while still feeling approachable and versatile like humans. There are six types: Dark, Eladrin, High, Wood, Sea, and Shadar-Kai.",
     subraces: [
       {
         id: 1,
@@ -354,6 +366,14 @@ export const races = [
       },
       {
         id: 2,
+        name: "Eladrin",
+        preview:
+          "A clever and subtle bloodline associated with deception and heists.",
+        description:
+          "Tieflings of Glasya often have talents suited for stealth, trickery, and social manipulation.",
+      },
+      {
+        id: 3,
         name: "High",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -361,7 +381,7 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 3,
+        id: 4,
         name: "Wood",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
@@ -369,12 +389,20 @@ export const races = [
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
       },
       {
-        id: 4,
+        id: 5,
         name: "Sea",
         preview:
           "A colder, more resilient bloodline with a connection to survival and endurance.",
         description:
           "These tieflings are often associated with endurance, defense, and a calm presence under pressure.",
+      },
+      {
+        id: 6,
+        name: "Shadar-Kai",
+        preview:
+          "A clever and subtle bloodline associated with deception and heists.",
+        description:
+          "Tieflings of Glasya often have talents suited for stealth, trickery, and social manipulation.",
       },
     ],
   },
@@ -383,9 +411,9 @@ export const races = [
     id: 15,
     name: "Half-Orc",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Half-Orcs are strong, tough humanoids who inherit the human and orc traits. They often have grayish or greenish skin, prominent tusks, and a powerful build. Their strength and resilience make them natural warriors, able to endure and fight where others might fall.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Half-Orcs are strong, tough humanoids who inherit the human and orc traits. They often have grayish or greenish skin, prominent tusks, and a powerful build. Their strength and resilience make them natural warriors, able to endure and fight where others might fall.",
     subraces: [],
   },
 
@@ -393,9 +421,9 @@ export const races = [
     id: 16,
     name: "Halfling",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Halflings are small, nimble humanoids known for their cheerful nature, curiosity, and luck. They often have round faces, quick feet, and a knack for staying out of trouble—or getting out of it with a smile. Despite their size, they are brave and resourceful. There are three types: Ghostwise, Lightfoot, and Stout.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Halflings are small, nimble humanoids known for their cheerful nature, curiosity, and luck. They often have round faces, quick feet, and a knack for staying out of trouble—or getting out of it with a smile. Despite their size, they are brave and resourceful. There are three types: Ghostwise, Lightfoot, and Stout.",
     subraces: [
       {
         id: 1,
@@ -428,9 +456,9 @@ export const races = [
     id: 17,
     name: "Harengon",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Harengon are humanoid rabbits with long ears, strong legs, and quick reflexes. They are naturally fast, alert, and good at hopping into (and out of) danger, often living in tight-knit communities or traveling the wilds.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Harengon are humanoid rabbits with long ears, strong legs, and quick reflexes. They are naturally fast, alert, and good at hopping into (and out of) danger, often living in tight-knit communities or traveling the wilds.",
     subraces: [],
   },
 
@@ -438,9 +466,9 @@ export const races = [
     id: 18,
     name: "Hobgoblin",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Hobgoblins are disciplined, militaristic goblinoids known for their intelligence, organization, and skill in battle. They are taller and stronger than goblins, with reddish-brown skin and a serious, focused demeanor. Hobgoblins value strategy, teamwork, and order above all else.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Hobgoblins are disciplined, militaristic goblinoids known for their intelligence, organization, and skill in battle. They are taller and stronger than goblins, with reddish-brown skin and a serious, focused demeanor. Hobgoblins value strategy, teamwork, and order above all else.",
     subraces: [],
   },
 
@@ -448,9 +476,9 @@ export const races = [
     id: 19,
     name: "Human",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Humans are versatile and adaptable and are known for their ambition, curiosity, and resilience. They come in all shapes, sizes, and backgrounds, making them the most common and flexible race in most worlds. There are two types: General and Variant.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Humans are versatile and adaptable and are known for their ambition, curiosity, and resilience. They come in all shapes, sizes, and backgrounds, making them the most common and flexible race in most worlds. There are two types: General and Variant.",
     subraces: [
       {
         id: 1,
@@ -475,9 +503,9 @@ export const races = [
     id: 20,
     name: "Kenku",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Kenku are crow-like humanoids with sleek black feathers, sharp beaks, and a knack for mimicry. They cannot speak in their own voices, but they can perfectly imitate sounds and voices they’ve heard, which makes them clever tricksters and resourceful problem-solvers.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Kenku are crow-like humanoids with sleek black feathers, sharp beaks, and a knack for mimicry. They cannot speak in their own voices, but they can perfectly imitate sounds and voices they’ve heard, which makes them clever tricksters and resourceful problem-solvers.",
     subraces: [],
   },
 
@@ -485,9 +513,9 @@ export const races = [
     id: 21,
     name: "Kobold",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Kobolds are small, reptilian humanoids with scaly skin, sharp teeth, and quick reflexes. They are clever, crafty, and often live in underground warrens or tunnels, relying on traps, teamwork, and cunning rather than brute strength.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Kobolds are small, reptilian humanoids with scaly skin, sharp teeth, and quick reflexes. They are clever, crafty, and often live in underground warrens or tunnels, relying on traps, teamwork, and cunning rather than brute strength.",
     subraces: [],
   },
 
@@ -495,9 +523,9 @@ export const races = [
     id: 22,
     name: "Lizardfolk",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Lizardfolk are reptilian humanoids with scaly skin, sharp claws, and a natural connection to swamps and wetlands. They are practical, survival-focused, and see the world in a very straightforward, instinctual way.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Lizardfolk are reptilian humanoids with scaly skin, sharp claws, and a natural connection to swamps and wetlands. They are practical, survival-focused, and see the world in a very straightforward, instinctual way.",
     subraces: [],
   },
 
@@ -505,9 +533,9 @@ export const races = [
     id: 23,
     name: "Minotaur",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Minotaurs are large, powerful humanoids with the head of a bull and a muscular build. They are natural warriors, known for their strength, courage, and determination, often excelling in combat and physical challenges.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Minotaurs are large, powerful humanoids with the head of a bull and a muscular build. They are natural warriors, known for their strength, courage, and determination, often excelling in combat and physical challenges.",
     subraces: [],
   },
 
@@ -515,9 +543,9 @@ export const races = [
     id: 24,
     name: "Orc",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Orcs are large, strong humanoids with greenish or gray skin, tusks, and a fierce appearance. They are known for their raw strength, combat skills, and tribal societies, often valuing bravery, honor, and survival in harsh conditions.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Orcs are large, strong humanoids with greenish or gray skin, tusks, and a fierce appearance. They are known for their raw strength, combat skills, and tribal societies, often valuing bravery, honor, and survival in harsh conditions.",
     subraces: [],
   },
 
@@ -525,9 +553,9 @@ export const races = [
     id: 25,
     name: "Owlin",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Owlin are owl-like humanoids with soft feathers, large expressive eyes, and silent wings that let them fly through the night. They are naturally observant, quiet, and curious, often drawn to knowledge or exploration.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Owlin are owl-like humanoids with soft feathers, large expressive eyes, and silent wings that let them fly through the night. They are naturally observant, quiet, and curious, often drawn to knowledge or exploration.",
     subraces: [],
   },
 
@@ -535,9 +563,9 @@ export const races = [
     id: 26,
     name: "Satyr",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Satyrs are playful, goat-legged humanoids with horns, hooves, and a love of music, nature, and revelry. They are charming, curious, and often full of energy, drawn to exploration, storytelling, and enjoying life’s pleasures.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Satyrs are playful, goat-legged humanoids with horns, hooves, and a love of music, nature, and revelry. They are charming, curious, and often full of energy, drawn to exploration, storytelling, and enjoying life’s pleasures.",
     subraces: [],
   },
 
@@ -545,9 +573,9 @@ export const races = [
     id: 27,
     name: "Shifter",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Shifters are humanoids with a touch of bestial ancestry, giving them animal-like traits such as sharp claws, enhanced senses, or fur. They can temporarily embrace these features, gaining extra strength, speed, or resilience in the heat of action. There are four types: Beasthide, Longtooth, Swiftstrife, and Wildhunt.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Shifters are humanoids with a touch of bestial ancestry, giving them animal-like traits such as sharp claws, enhanced senses, or fur. They can temporarily embrace these features, gaining extra strength, speed, or resilience in the heat of action. There are four types: Beasthide, Longtooth, Swiftstrife, and Wildhunt.",
     subraces: [
       {
         id: 1,
@@ -588,9 +616,9 @@ export const races = [
     id: 28,
     name: "Tabaxi",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Tabaxi are cat-like humanoids with sleek fur, sharp claws, and a natural curiosity that drives them to explore the world. They are agile, quick, and often obsessed with collecting interesting objects, stories, or experiences.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Tabaxi are cat-like humanoids with sleek fur, sharp claws, and a natural curiosity that drives them to explore the world. They are agile, quick, and often obsessed with collecting interesting objects, stories, or experiences.",
     subraces: [],
   },
 
@@ -598,9 +626,9 @@ export const races = [
     id: 29,
     name: "Tiefling",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Tieflings are humans with fiendish ancestry, giving them horns, tails, unusual skin tones, and often glowing eyes. Their infernal heritage grants them innate magical abilities and a natural resistance to certain dangers. There are nine types: Asmodeus, Baalzebul, Dispater, Fierna, Glasya, Levistus, Mammon, Mephistopheles, and Zariel.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Tieflings are humans with fiendish ancestry, giving them horns, tails, unusual skin tones, and often glowing eyes. Their infernal heritage grants them innate magical abilities and a natural resistance to certain dangers. There are nine types: Asmodeus, Baalzebul, Dispater, Fierna, Glasya, Levistus, Mammon, Mephistopheles, and Zariel. ",
     subraces: [
       {
         id: 1,
@@ -680,27 +708,27 @@ export const races = [
     id: 30,
     name: "Tortle",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Tortles are humanoids with turtle-like features, including hard shells and sturdy builds. They are naturally resilient, often living in coastal or tropical areas and valuing community, tradition, and a peaceful life.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Tortles are humanoids with turtle-like features, including hard shells and sturdy builds. They are naturally resilient, often living in coastal or tropical areas and valuing community, tradition, and a peaceful life.",
     subraces: [],
   },
   {
     id: 31,
     name: "Triton",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Tritons are aquatic humanoids with blue-green skin, fins, and webbed hands and feet. They come from the depths of the sea and often act as guardians of ocean realms, carrying a strong sense of duty and honor.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Tritons are aquatic humanoids with blue-green skin, fins, and webbed hands and feet. They come from the depths of the sea and often act as guardians of ocean realms, carrying a strong sense of duty and honor.",
     subraces: [],
   },
   {
     id: 32,
     name: "Yuan Ti",
     preview:
-      "Descended from infernal influence, tieflings are known for their striking appearance and complex legacy.",
+      "Yuan-ti are serpent-like humanoids with scales, slitted eyes, and often snake-like heads or features. They are cunning, secretive, and naturally gifted in magic and manipulation, often thriving in hidden temples or controlling societies from the shadows.",
     description:
-      "Tieflings are often treated with suspicion, but many forge their own path with resilience, charm, and power.",
+      "Yuan-ti are serpent-like humanoids with scales, slitted eyes, and often snake-like heads or features. They are cunning, secretive, and naturally gifted in magic and manipulation, often thriving in hidden temples or controlling societies from the shadows.",
     subraces: [],
   },
 ];

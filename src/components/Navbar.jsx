@@ -4,7 +4,9 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar__logo">
-        <h2>QuestKeeper</h2>
+        <h2>
+          <Link to="/">QuestKeeper</Link>
+        </h2>
       </div>
       <ul className="navbar__links">
         <li>
