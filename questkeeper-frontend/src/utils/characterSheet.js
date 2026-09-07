@@ -272,6 +272,7 @@ export function createCharacterSheet(overrides = {}) {
     equipment: [],
     spellcasting: null,
     feats: [],
+    resources: [],
     abilityScoreImprovements: [],
     pendingLevelUp: null,
     notes: "",
@@ -286,5 +287,55 @@ export function createPendingLevelUp(targetLevel, stepKeys) {
     startedAt: new Date().toISOString(),
     status: "in_progress", // "in_progress" | "complete"
     steps: stepKeys.map((key) => ({ key, status: "pending", data: null })),
+  };
+}
+
+export function createResource({ name, max, resetOn }) {
+  return {
+    id: crypto.randomUUID(),
+    name,
+    max,
+    current: max,
+    resetOn, // "short" | "long"
+  };
+}
+
+export function setResourceCurrent(resources, id, value) {
+  return (resources ?? []).map((resource) =>
+    resource.id === id
+      ? { ...resource, current: Math.max(0, Math.min(value, resource.max)) }
+      : resource,
+  );
+}
+
+export function removeResource(resources, id) {
+  return (resources ?? []).filter((resource) => resource.id !== id);
+}
+
+export function setCurrentHp(hitPoints, value) {
+  return {
+    ...hitPoints,
+    current: Math.max(0, Math.min(value, hitPoints.max)),
+  };
+}
+
+export function applyRest(sheet, restType) {
+  const resources = (sheet.resources ?? []).map((resource) => {
+    const shouldReset = restType === "long" || resource.resetOn === "short";
+    return shouldReset ? { ...resource, current: resource.max } : resource;
+  });
+
+  const hitPoints =
+    restType === "long"
+      ? setCurrentHp(sheet.combat.hitPoints, sheet.combat.hitPoints.max)
+      : sheet.combat.hitPoints;
+
+  return {
+    ...sheet,
+    resources,
+    combat: {
+      ...sheet.combat,
+      hitPoints,
+    },
   };
 }

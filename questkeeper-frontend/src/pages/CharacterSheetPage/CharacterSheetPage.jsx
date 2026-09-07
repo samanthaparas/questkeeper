@@ -7,6 +7,11 @@ import {
   getAbilityModifier,
   getProficiencyBonus,
   buildLevelUpSummary,
+  createResource,
+  setResourceCurrent,
+  removeResource,
+  setCurrentHp,
+  applyRest,
 } from "../../utils/characterSheet";
 import LevelUpWizard from "../../components/LevelUpWizard/LevelUpWizard";
 import "./CharacterSheetPage.css";
@@ -20,6 +25,9 @@ function CharacterSheetPage() {
   const [sheet, setSheet] = useState(() => getCharacter(id));
   const [isLevelingUp, setIsLevelingUp] = useState(false);
   const [levelUpSummary, setLevelUpSummary] = useState(null);
+  const [newResourceName, setNewResourceName] = useState("");
+  const [newResourceMax, setNewResourceMax] = useState("");
+  const [newResourceResetOn, setNewResourceResetOn] = useState("long");
 
   if (!sheet) {
     return (
@@ -38,6 +46,65 @@ function CharacterSheetPage() {
     setSheet(saved);
     setLevelUpSummary(summary);
     setIsLevelingUp(false);
+  }
+
+  function persistSheet(updated) {
+    const saved = saveCharacter(updated);
+    setSheet(saved);
+  }
+
+  function handleHpChange(value) {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return;
+
+    persistSheet({
+      ...sheet,
+      combat: {
+        ...sheet.combat,
+        hitPoints: setCurrentHp(sheet.combat.hitPoints, numeric),
+      },
+    });
+  }
+
+  function handleAddResource(e) {
+    e.preventDefault();
+    if (!newResourceName.trim() || !newResourceMax) return;
+
+    const resource = createResource({
+      name: newResourceName.trim(),
+      max: Number(newResourceMax),
+      resetOn: newResourceResetOn,
+    });
+
+    persistSheet({
+      ...sheet,
+      resources: [...(sheet.resources ?? []), resource],
+    });
+
+    setNewResourceName("");
+    setNewResourceMax("");
+    setNewResourceResetOn("long");
+  }
+
+  function handleResourceCurrentChange(id, value) {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return;
+
+    persistSheet({
+      ...sheet,
+      resources: setResourceCurrent(sheet.resources ?? [], id, numeric),
+    });
+  }
+
+  function handleRemoveResource(id) {
+    persistSheet({
+      ...sheet,
+      resources: removeResource(sheet.resources ?? [], id),
+    });
+  }
+
+  function handleRest(restType) {
+    persistSheet(applyRest(sheet, restType));
   }
 
   const proficiencyBonus = getProficiencyBonus(sheet.level);
@@ -122,6 +189,22 @@ function CharacterSheetPage() {
               >
                 Level Up
               </button>
+
+              <button
+                type="button"
+                className="character-sheet__rest-button"
+                onClick={() => handleRest("short")}
+              >
+                Short Rest
+              </button>
+
+              <button
+                type="button"
+                className="character-sheet__rest-button"
+                onClick={() => handleRest("long")}
+              >
+                Long Rest
+              </button>
             </div>
 
             <section className="character-sheet__stat-row">
@@ -145,8 +228,17 @@ function CharacterSheetPage() {
               </div>
               <div className="character-sheet__stat-box">
                 <span className="character-sheet__stat-label">Hit Points</span>
-                <span className="character-sheet__stat-value">
-                  {combat.hitPoints.current} / {combat.hitPoints.max}
+                <span className="character-sheet__stat-value character-sheet__hp-value">
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input"
+                    value={combat.hitPoints.current}
+                    onChange={(e) => handleHpChange(e.target.value)}
+                    min={0}
+                    max={combat.hitPoints.max}
+                  />
+                  {" / "}
+                  {combat.hitPoints.max}
                   {combat.hitPoints.temporary > 0 &&
                     ` (+${combat.hitPoints.temporary})`}
                 </span>
@@ -190,6 +282,94 @@ function CharacterSheetPage() {
                   </div>
                 );
               })}
+            </section>
+
+            <section className="character-sheet__section">
+              <h2 className="character-sheet__section-title">Resources</h2>
+              {(sheet.resources ?? []).length === 0 ? (
+                <p className="character-sheet__empty-text">
+                  No tracked resources yet. Add one below for anything with
+                  limited uses - Channel Divinity, Lay on Hands, spell slots,
+                  whatever you need.
+                </p>
+              ) : (
+                <ul className="character-sheet__resource-list">
+                  {sheet.resources.map((resource) => (
+                    <li
+                      className="character-sheet__resource-row"
+                      key={resource.id}
+                    >
+                      <span className="character-sheet__resource-name">
+                        {resource.name}
+                      </span>
+                      <span className="character-sheet__resource-count">
+                        <input
+                          type="number"
+                          className="character-sheet__resource-input"
+                          value={resource.current}
+                          onChange={(e) =>
+                            handleResourceCurrentChange(
+                              resource.id,
+                              e.target.value,
+                            )
+                          }
+                          min={0}
+                          max={resource.max}
+                        />
+                        {" / "}
+                        {resource.max}
+                      </span>
+                      <span className="character-sheet__resource-reset">
+                        {resource.resetOn === "short"
+                          ? "Short Rest"
+                          : "Long Rest"}
+                      </span>
+                      <button
+                        type="button"
+                        className="character-sheet__resource-remove"
+                        onClick={() => handleRemoveResource(resource.id)}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <form
+                className="character-sheet__resource-form"
+                onSubmit={handleAddResource}
+              >
+                <input
+                  type="text"
+                  className="character-sheet__resource-form-input"
+                  placeholder="Resource name (e.g. Channel Divinity)"
+                  value={newResourceName}
+                  onChange={(e) => setNewResourceName(e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
+                  placeholder="Max"
+                  value={newResourceMax}
+                  onChange={(e) => setNewResourceMax(e.target.value)}
+                  min={1}
+                />
+                <select
+                  className="character-sheet__resource-form-select"
+                  value={newResourceResetOn}
+                  onChange={(e) => setNewResourceResetOn(e.target.value)}
+                >
+                  <option value="long">Long Rest</option>
+                  <option value="short">Short Rest</option>
+                </select>
+                <button
+                  type="submit"
+                  className="character-sheet__resource-add-button"
+                >
+                  Add Resource
+                </button>
+              </form>
             </section>
 
             <section className="character-sheet__section">

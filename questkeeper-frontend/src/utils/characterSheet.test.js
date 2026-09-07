@@ -8,6 +8,11 @@ import {
   applyAbilityScoreChoice,
   finalizeLevelUp,
   buildLevelUpSummary,
+  createResource,
+  setResourceCurrent,
+  removeResource,
+  setCurrentHp,
+  applyRest,
 } from "./characterSheet";
 
 describe("getAbilityModifier", () => {
@@ -117,6 +122,102 @@ describe("applyAbilityScoreChoice", () => {
 
   it("returns an unchanged copy when there's no choice (feat instead)", () => {
     expect(applyAbilityScoreChoice(scores, null)).toEqual(scores);
+  });
+});
+
+describe("createResource", () => {
+  it("creates a resource with current equal to max", () => {
+    const resource = createResource({
+      name: "Channel Divinity",
+      max: 1,
+      resetOn: "long",
+    });
+
+    expect(resource.name).toBe("Channel Divinity");
+    expect(resource.max).toBe(1);
+    expect(resource.current).toBe(1);
+    expect(resource.resetOn).toBe("long");
+    expect(resource.id).toBeTruthy();
+  });
+});
+
+describe("setResourceCurrent", () => {
+  const resources = [
+    { id: "a", name: "Channel Divinity", max: 1, current: 1, resetOn: "long" },
+    { id: "b", name: "Second Wind", max: 1, current: 1, resetOn: "short" },
+  ];
+
+  it("updates only the matching resource", () => {
+    const result = setResourceCurrent(resources, "a", 0);
+
+    expect(result.find((r) => r.id === "a").current).toBe(0);
+    expect(result.find((r) => r.id === "b").current).toBe(1);
+  });
+
+  it("clamps the value between 0 and max", () => {
+    expect(setResourceCurrent(resources, "a", -5)[0].current).toBe(0);
+    expect(setResourceCurrent(resources, "a", 99)[0].current).toBe(1);
+  });
+
+  it("treats a missing resources list as empty", () => {
+    expect(setResourceCurrent(undefined, "a", 1)).toEqual([]);
+  });
+});
+
+describe("removeResource", () => {
+  const resources = [
+    { id: "a", name: "Channel Divinity", max: 1, current: 1, resetOn: "long" },
+    { id: "b", name: "Second Wind", max: 1, current: 1, resetOn: "short" },
+  ];
+
+  it("removes only the matching resource", () => {
+    const result = removeResource(resources, "a");
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("b");
+  });
+});
+
+describe("setCurrentHp", () => {
+  it("clamps between 0 and max", () => {
+    const hitPoints = { max: 20, current: 5, temporary: 0 };
+
+    expect(setCurrentHp(hitPoints, 15).current).toBe(15);
+    expect(setCurrentHp(hitPoints, -3).current).toBe(0);
+    expect(setCurrentHp(hitPoints, 50).current).toBe(20);
+  });
+});
+
+describe("applyRest", () => {
+  function makeSheet() {
+    return {
+      combat: { hitPoints: { max: 20, current: 5, temporary: 0 } },
+      resources: [
+        {
+          id: "a",
+          name: "Channel Divinity",
+          max: 1,
+          current: 0,
+          resetOn: "long",
+        },
+        { id: "b", name: "Second Wind", max: 1, current: 0, resetOn: "short" },
+      ],
+    };
+  }
+
+  it("a long rest restores HP to max and every resource", () => {
+    const result = applyRest(makeSheet(), "long");
+
+    expect(result.combat.hitPoints.current).toBe(20);
+    expect(result.resources.every((r) => r.current === r.max)).toBe(true);
+  });
+
+  it("a short rest only restores short-rest resources and leaves HP alone", () => {
+    const result = applyRest(makeSheet(), "short");
+
+    expect(result.combat.hitPoints.current).toBe(5);
+    expect(result.resources.find((r) => r.id === "a").current).toBe(0);
+    expect(result.resources.find((r) => r.id === "b").current).toBe(1);
   });
 });
 
