@@ -15,45 +15,6 @@ function formatModifier(mod) {
   return mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
-function buildLevelUpSummary(before, after) {
-  const abilityChanges = ABILITY_SCORES.filter(
-    (ability) => before.abilityScores[ability] !== after.abilityScores[ability],
-  ).map((ability) => ({
-    ability,
-    from: before.abilityScores[ability],
-    to: after.abilityScores[ability],
-  }));
-
-  const newFeat =
-    (after.feats?.length ?? 0) > (before.feats?.length ?? 0)
-      ? after.feats[after.feats.length - 1]
-      : null;
-
-  const beforeSpellCount =
-    (before.spellcasting?.cantripsKnown?.length ?? 0) +
-    (before.spellcasting?.spellsKnown?.length ?? 0);
-  const afterSpellCount =
-    (after.spellcasting?.cantripsKnown?.length ?? 0) +
-    (after.spellcasting?.spellsKnown?.length ?? 0);
-
-  const newSpell =
-    afterSpellCount > beforeSpellCount
-      ? (after.spellcasting.spellsKnown.at(-1) ??
-        after.spellcasting.cantripsKnown.at(-1))
-      : null;
-
-  return {
-    fromLevel: before.level,
-    toLevel: after.level,
-    hpGained: after.combat.hitPoints.max - before.combat.hitPoints.max,
-    fromProficiency: getProficiencyBonus(before.level),
-    toProficiency: getProficiencyBonus(after.level),
-    abilityChanges,
-    newFeat,
-    newSpell,
-  };
-}
-
 function CharacterSheetPage() {
   const { id } = useParams();
   const [sheet, setSheet] = useState(() => getCharacter(id));
