@@ -16,6 +16,14 @@ function getSpellcastingType(classIndex) {
   return null;
 }
 
+function mapStartingEquipment(raw) {
+  return (raw.starting_equipment ?? []).map((item) => ({
+    index: item.equipment.index,
+    name: item.equipment.name,
+    quantity: item.quantity,
+  }));
+}
+
 export function mapRaceToSnapshot(raw) {
   const abilityScoreIncreases = raw.ability_bonuses.reduce((acc, item) => {
     const abilityName = ABILITY_ABBREVIATION_TO_NAME[item.ability_score.name];
@@ -45,6 +53,16 @@ export function mapRaceToSnapshot(raw) {
 }
 
 export function mapClassToSnapshot(raw) {
+  const skillChoice = raw.proficiency_choices?.[0]
+    ? {
+        choose: raw.proficiency_choices[0].choose,
+        options: raw.proficiency_choices[0].from.options.map((option) => ({
+          index: option.item.index.replace(/^skill-/, ""),
+          name: option.item.name.replace(/^Skill: /, ""),
+        })),
+      }
+    : null;
+
   return {
     id: raw.index,
     name: raw.name,
@@ -54,6 +72,8 @@ export function mapClassToSnapshot(raw) {
       (item) => ABILITY_ABBREVIATION_TO_NAME[item.name],
     ),
     spellcastingType: getSpellcastingType(raw.index),
+    skillChoice,
+    startingEquipment: mapStartingEquipment(raw),
   };
 }
 
@@ -62,7 +82,11 @@ export function mapBackgroundToSnapshot(raw) {
     id: raw.index,
     name: raw.name,
     source: "SRD 5.1",
-    skillProficiencies: raw.starting_proficiencies.map((item) => item.name),
+    skillProficiencies: raw.starting_proficiencies.map((item) => ({
+      index: item.index.replace(/^skill-/, ""),
+      name: item.name.replace(/^Skill: /, ""),
+    })),
     feature: raw.feature.name,
+    startingEquipment: mapStartingEquipment(raw),
   };
 }
