@@ -7,6 +7,27 @@ export const ABILITY_SCORES = [
   "charisma",
 ];
 
+export const SKILLS = [
+  { index: "acrobatics", name: "Acrobatics", ability: "dexterity" },
+  { index: "animal-handling", name: "Animal Handling", ability: "wisdom" },
+  { index: "arcana", name: "Arcana", ability: "intelligence" },
+  { index: "athletics", name: "Athletics", ability: "strength" },
+  { index: "deception", name: "Deception", ability: "charisma" },
+  { index: "history", name: "History", ability: "intelligence" },
+  { index: "insight", name: "Insight", ability: "wisdom" },
+  { index: "intimidation", name: "Intimidation", ability: "charisma" },
+  { index: "investigation", name: "Investigation", ability: "intelligence" },
+  { index: "medicine", name: "Medicine", ability: "wisdom" },
+  { index: "nature", name: "Nature", ability: "intelligence" },
+  { index: "perception", name: "Perception", ability: "wisdom" },
+  { index: "performance", name: "Performance", ability: "charisma" },
+  { index: "persuasion", name: "Persuasion", ability: "charisma" },
+  { index: "religion", name: "Religion", ability: "intelligence" },
+  { index: "sleight-of-hand", name: "Sleight of Hand", ability: "dexterity" },
+  { index: "stealth", name: "Stealth", ability: "dexterity" },
+  { index: "survival", name: "Survival", ability: "wisdom" },
+];
+
 export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 
 export const ABILITY_ABBREVIATIONS = {
@@ -29,6 +50,10 @@ export const ABILITY_LABELS = {
 
 export function getAbilityModifier(score) {
   return Math.floor((score - 10) / 2);
+}
+
+export function getSkillModifier(score, isProficient, proficiencyBonus) {
+  return getAbilityModifier(score) + (isProficient ? proficiencyBonus : 0);
 }
 
 export function getProficiencyBonus(level) {
@@ -115,7 +140,11 @@ function addSpellToSpellcasting(spellcasting, characterClass, spellChoice) {
     spellsKnown: [],
   };
 
-  const entry = { index: spellChoice.spellIndex, name: spellChoice.spellName };
+  const entry = {
+    index: spellChoice.spellIndex,
+    name: spellChoice.spellName,
+    level: spellChoice.spellLevel,
+  };
 
   if (spellChoice.spellLevel === 0) {
     return { ...base, cantripsKnown: [...base.cantripsKnown, entry] };
@@ -276,6 +305,7 @@ export function createCharacterSheet(overrides = {}) {
     abilityScoreImprovements: [],
     pendingLevelUp: null,
     notes: "",
+    companions: [],
 
     ...overrides,
   };
@@ -330,12 +360,100 @@ export function applyRest(sheet, restType) {
       ? setCurrentHp(sheet.combat.hitPoints, sheet.combat.hitPoints.max)
       : sheet.combat.hitPoints;
 
+  const spellcasting =
+    restType === "long" && sheet.spellcasting
+      ? {
+          ...sheet.spellcasting,
+          spellSlots: getSpellSlots(sheet.spellcasting).map((slot) => ({
+            ...slot,
+            current: slot.max,
+          })),
+        }
+      : sheet.spellcasting;
+
   return {
     ...sheet,
     resources,
+    spellcasting,
     combat: {
       ...sheet.combat,
       hitPoints,
     },
   };
+}
+
+export function createEquipmentItem({ name, quantity, description }) {
+  return {
+    index: crypto.randomUUID(),
+    name,
+    quantity: quantity && quantity > 0 ? quantity : 1,
+    description: description || "",
+  };
+}
+
+export function removeEquipmentItem(equipment, index) {
+  return (equipment ?? []).filter((item) => item.index !== index);
+}
+
+export function createFeat({ name, description }) {
+  return {
+    index: crypto.randomUUID(),
+    name,
+    description: description || "",
+  };
+}
+
+export function removeFeat(feats, index) {
+  return (feats ?? []).filter((feat) => feat.index !== index);
+}
+
+export function addManualSpell(sheet, { name, level }) {
+  const base = sheet.spellcasting ?? {
+    type: sheet.class?.spellcastingType ?? "known",
+    cantripsKnown: [],
+    spellsKnown: [],
+  };
+
+  const numericLevel = Number(level);
+  const entry = { index: crypto.randomUUID(), name, level: numericLevel };
+
+  if (numericLevel === 0) {
+    return { ...base, cantripsKnown: [...base.cantripsKnown, entry] };
+  }
+
+  return { ...base, spellsKnown: [...base.spellsKnown, entry] };
+}
+
+export function removeSpell(spellcasting, listKey, index) {
+  return {
+    ...spellcasting,
+    [listKey]: spellcasting[listKey].filter((spell) => spell.index !== index),
+  };
+}
+
+function createDefaultSpellSlots() {
+  return [1, 2, 3, 4, 5, 6, 7, 8, 9].map((level) => ({
+    level,
+    max: 0,
+    current: 0,
+  }));
+}
+
+export function getSpellSlots(spellcasting) {
+  return spellcasting?.spellSlots ?? createDefaultSpellSlots();
+}
+
+export function setSpellSlot(spellcasting, level, field, value) {
+  const base = spellcasting ?? {
+    type: "known",
+    cantripsKnown: [],
+    spellsKnown: [],
+  };
+  const spellSlots = getSpellSlots(base);
+
+  const updatedSlots = spellSlots.map((slot) =>
+    slot.level === level ? { ...slot, [field]: Math.max(0, value) } : slot,
+  );
+
+  return { ...base, spellSlots: updatedSlots };
 }
