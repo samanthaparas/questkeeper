@@ -7,7 +7,11 @@ function CharactersPage() {
   const [characters, setCharacters] = useState(() => listCharacters());
   const navigate = useNavigate();
 
-  function handleDelete(id) {
+  function handleDelete(id, name) {
+    const confirmed = window.confirm(`Delete ${name}? This cannot be undone.`);
+
+    if (!confirmed) return;
+
     deleteCharacter(id);
     setCharacters(listCharacters());
   }
@@ -53,7 +57,7 @@ function CharactersPage() {
               <button
                 className="characters-page__delete-button"
                 type="button"
-                onClick={() => handleDelete(sheet.id)}
+                onClick={() => handleDelete(sheet.id, sheet.name)}
               >
                 Delete
               </button>
