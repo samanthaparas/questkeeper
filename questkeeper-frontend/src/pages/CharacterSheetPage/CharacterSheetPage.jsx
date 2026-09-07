@@ -200,8 +200,28 @@ function CharacterSheetPage() {
                 </p>
               ) : (
                 <ul className="character-sheet__list">
-                  {sheet.equipment.map((item, index) => (
-                    <li key={index}>{item.name ?? item}</li>
+                  {sheet.equipment.map((item) => (
+                    <li key={item.index}>
+                      {item.name}
+                      {item.quantity > 1 ? ` x${item.quantity}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="character-sheet__section">
+              <h2 className="character-sheet__section-title">
+                Skill Proficiencies
+              </h2>
+              {Object.keys(sheet.skills ?? {}).length === 0 ? (
+                <p className="character-sheet__empty-text">
+                  No skill proficiencies yet.
+                </p>
+              ) : (
+                <ul className="character-sheet__list">
+                  {Object.entries(sheet.skills).map(([index, name]) => (
+                    <li key={index}>{name}</li>
                   ))}
                 </ul>
               )}

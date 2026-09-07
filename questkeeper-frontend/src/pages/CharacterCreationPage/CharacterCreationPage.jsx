@@ -23,9 +23,18 @@ import {
 import { saveCharacter } from "../../utils/characterStore";
 import PickerStep from "../../components/PickerStep/PickerStep";
 import AbilityScoreStep from "../../components/AbilityScoreStep/AbilityScoreStep";
+import ClassSkillChoiceStep from "../../components/ClassSkillChoiceStep/ClassSkillChoiceStep";
 import "./CharacterCreationPage.css";
 
-const STEPS = ["name", "race", "class", "background", "abilities", "review"];
+const STEPS = [
+  "name",
+  "race",
+  "class",
+  "classSkills",
+  "background",
+  "abilities",
+  "review",
+];
 
 function mapRaceToDetailPanelResult(data) {
   const abilityBonuses = data.ability_bonuses
@@ -97,6 +106,7 @@ function CharacterCreationPage() {
   const [characterClass, setCharacterClass] = useState(null);
   const [background, setBackground] = useState(null);
   const [abilityScores, setAbilityScores] = useState(null);
+  const [classSkills, setClassSkills] = useState([]);
 
   const step = STEPS[stepIndex];
 
@@ -116,6 +126,19 @@ function CharacterCreationPage() {
       return acc;
     }, {});
 
+    const skills = {};
+    (background?.skillProficiencies ?? []).forEach((skill) => {
+      skills[skill.index] = skill.name;
+    });
+    classSkills.forEach((skill) => {
+      skills[skill.index] = skill.name;
+    });
+
+    const equipment = [
+      ...(characterClass?.startingEquipment ?? []),
+      ...(background?.startingEquipment ?? []),
+    ];
+
     const sheet = createCharacterSheet({
       name,
       race,
@@ -123,6 +146,8 @@ function CharacterCreationPage() {
       background,
       abilityScores,
       savingThrows,
+      skills,
+      equipment,
       combat: {
         armorClass: getStartingArmorClass(dexModifier),
         initiative: dexModifier,
@@ -216,6 +241,17 @@ function CharacterCreationPage() {
           />
         )}
 
+        {step === "classSkills" && (
+          <ClassSkillChoiceStep
+            characterClass={characterClass}
+            onNext={(selected) => {
+              setClassSkills(selected);
+              goToStep(stepIndex + 1);
+            }}
+            onBack={() => goToStep(stepIndex - 1)}
+          />
+        )}
+
         {step === "background" && (
           <PickerStep
             title="Choose a Background"
@@ -255,15 +291,19 @@ function CharacterCreationPage() {
               <li>
                 <strong>Name:</strong> {name}
               </li>
+
               <li>
                 <strong>Race:</strong> {race?.name ?? "Not chosen"}
               </li>
+
               <li>
                 <strong>Class:</strong> {characterClass?.name ?? "Not chosen"}
               </li>
+
               <li>
                 <strong>Background:</strong> {background?.name ?? "Not chosen"}
               </li>
+
               <li>
                 <strong>Ability Scores:</strong>{" "}
                 {ABILITY_SCORES.map((ability) => {
@@ -271,6 +311,26 @@ function CharacterCreationPage() {
                   const mod = getAbilityModifier(score);
                   return `${ability.slice(0, 3).toUpperCase()} ${score} (${mod >= 0 ? "+" : ""}${mod})`;
                 }).join(" · ")}
+              </li>
+
+              <li>
+                <strong>Skill Proficiencies:</strong>{" "}
+                {[...(background?.skillProficiencies ?? []), ...classSkills]
+                  .map((s) => s.name)
+                  .join(", ") || "None"}
+              </li>
+
+              <li>
+                <strong>Starting Equipment:</strong>{" "}
+                {[
+                  ...(characterClass?.startingEquipment ?? []),
+                  ...(background?.startingEquipment ?? []),
+                ]
+                  .map(
+                    (item) =>
+                      `${item.name}${item.quantity > 1 ? ` x${item.quantity}` : ""}`,
+                  )
+                  .join(", ") || "None"}
               </li>
             </ul>
 
