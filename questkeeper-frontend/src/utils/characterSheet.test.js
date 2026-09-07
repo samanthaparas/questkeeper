@@ -7,6 +7,7 @@ import {
   getStartingArmorClass,
   applyAbilityScoreChoice,
   finalizeLevelUp,
+  buildLevelUpSummary,
 } from "./characterSheet";
 
 describe("getAbilityModifier", () => {
@@ -168,5 +169,62 @@ describe("finalizeLevelUp", () => {
   it("clears pendingLevelUp once applied", () => {
     const result = finalizeLevelUp(makeSheet());
     expect(result.pendingLevelUp).toBeNull();
+  });
+});
+
+describe("buildLevelUpSummary", () => {
+  function baseSheet(overrides = {}) {
+    return {
+      level: 1,
+      abilityScores: { strength: 15, dexterity: 14 },
+      feats: [],
+      combat: { hitPoints: { max: 8 } },
+      spellcasting: null,
+      ...overrides,
+    };
+  }
+
+  it("reports a newly learned cantrip even when leveled spells are already known", () => {
+    const before = baseSheet({
+      spellcasting: {
+        cantripsKnown: [{ index: "fire-bolt", name: "Fire Bolt" }],
+        spellsKnown: [{ index: "magic-missile", name: "Magic Missile" }],
+      },
+    });
+
+    const after = baseSheet({
+      level: 2,
+      spellcasting: {
+        cantripsKnown: [
+          { index: "fire-bolt", name: "Fire Bolt" },
+          { index: "mage-hand", name: "Mage Hand" },
+        ],
+        spellsKnown: [{ index: "magic-missile", name: "Magic Missile" }],
+      },
+    });
+
+    expect(buildLevelUpSummary(before, after).newSpell.name).toBe("Mage Hand");
+  });
+
+  it("reports a newly learned leveled spell", () => {
+    const before = baseSheet({
+      spellcasting: { cantripsKnown: [], spellsKnown: [] },
+    });
+
+    const after = baseSheet({
+      spellcasting: {
+        cantripsKnown: [],
+        spellsKnown: [{ index: "shield", name: "Shield" }],
+      },
+    });
+
+    expect(buildLevelUpSummary(before, after).newSpell.name).toBe("Shield");
+  });
+
+  it("reports no new spell when nothing was learned", () => {
+    const before = baseSheet({ spellcasting: null });
+    const after = baseSheet({ spellcasting: null });
+
+    expect(buildLevelUpSummary(before, after).newSpell).toBeNull();
   });
 });
