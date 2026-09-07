@@ -6,6 +6,7 @@ import {
   ABILITY_ABBREVIATIONS,
   getAbilityModifier,
   getProficiencyBonus,
+  buildLevelUpSummary,
 } from "../../utils/characterSheet";
 import LevelUpWizard from "../../components/LevelUpWizard/LevelUpWizard";
 import "./CharacterSheetPage.css";
