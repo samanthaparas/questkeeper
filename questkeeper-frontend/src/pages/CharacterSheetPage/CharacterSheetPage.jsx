@@ -10,21 +10,36 @@ import {
   getProficiencyBonus,
   buildLevelUpSummary,
   createResource,
+  updateResource,
   setResourceCurrent,
   removeResource,
   setCurrentHp,
   applyRest,
   createEquipmentItem,
+  updateEquipmentItem,
   removeEquipmentItem,
+  createAttack,
+  removeAttack,
+  updateAttack,
   createFeat,
+  updateFeat,
   removeFeat,
   addManualSpell,
+  updateSpell,
   removeSpell,
   getSpellSlots,
   setSpellSlot,
 } from "../../utils/characterSheet";
 import LevelUpWizard from "../../components/LevelUpWizard/LevelUpWizard";
+import EditableItemList from "../../components/EditableItemList/EditableItemList";
 import "./CharacterSheetPage.css";
+
+function formatNotesLines(notes) {
+  return (notes ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
 
 function formatModifier(mod) {
   return mod >= 0 ? `+${mod}` : `${mod}`;
@@ -35,16 +50,13 @@ function CharacterSheetPage() {
   const [sheet, setSheet] = useState(() => getCharacter(id));
   const [isLevelingUp, setIsLevelingUp] = useState(false);
   const [levelUpSummary, setLevelUpSummary] = useState(null);
-  const [newResourceName, setNewResourceName] = useState("");
-  const [newResourceMax, setNewResourceMax] = useState("");
-  const [newResourceResetOn, setNewResourceResetOn] = useState("long");
-  const [newEquipmentName, setNewEquipmentName] = useState("");
-  const [newEquipmentQuantity, setNewEquipmentQuantity] = useState("");
-  const [newEquipmentDescription, setNewEquipmentDescription] = useState("");
-  const [newFeatName, setNewFeatName] = useState("");
-  const [newFeatDescription, setNewFeatDescription] = useState("");
-  const [newSpellName, setNewSpellName] = useState("");
-  const [newSpellLevel, setNewSpellLevel] = useState("0");
+  const [newAttackName, setNewAttackName] = useState("");
+  const [newAttackToHit, setNewAttackToHit] = useState("");
+  const [newAttackDamage, setNewAttackDamage] = useState("");
+  const [newAttackDamageType, setNewAttackDamageType] = useState("");
+  const [newAttackNotes, setNewAttackNotes] = useState("");
+  const [isAddingAttack, setIsAddingAttack] = useState(false);
+  const [editingAttackIndex, setEditingAttackIndex] = useState(null);
 
   if (!sheet) {
     return (
@@ -98,6 +110,18 @@ function CharacterSheetPage() {
     const numeric = Number(value);
     if (Number.isNaN(numeric)) return;
     persistSheet({ ...sheet, combat: { ...sheet.combat, speed: numeric } });
+  }
+
+  function handleInspirationChange(value) {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return;
+    persistSheet({ ...sheet, inspiration: numeric });
+  }
+
+  function handleGoldChange(value) {
+    const numeric = Number(value);
+    if (Number.isNaN(numeric)) return;
+    persistSheet({ ...sheet, gold: numeric });
   }
 
   function handleHpChange(value) {
@@ -157,26 +181,6 @@ function CharacterSheetPage() {
     persistSheet({ ...sheet, companion: value });
   }
 
-  function handleAddResource(e) {
-    e.preventDefault();
-    if (!newResourceName.trim() || !newResourceMax) return;
-
-    const resource = createResource({
-      name: newResourceName.trim(),
-      max: Number(newResourceMax),
-      resetOn: newResourceResetOn,
-    });
-
-    persistSheet({
-      ...sheet,
-      resources: [...(sheet.resources ?? []), resource],
-    });
-
-    setNewResourceName("");
-    setNewResourceMax("");
-    setNewResourceResetOn("long");
-  }
-
   function handleResourceCurrentChange(id, value) {
     const numeric = Number(value);
     if (Number.isNaN(numeric)) return;
@@ -187,80 +191,187 @@ function CharacterSheetPage() {
     });
   }
 
-  function handleRemoveResource(id) {
+  function handleEquipmentAdd(values) {
+    const item = createEquipmentItem({
+      name: values.name.trim(),
+      quantity: Number(values.quantity) || 1,
+      description: values.description.trim(),
+    });
+    persistSheet({ ...sheet, equipment: [...(sheet.equipment ?? []), item] });
+  }
+
+  function handleEquipmentUpdate(id, values) {
     persistSheet({
       ...sheet,
-      resources: removeResource(sheet.resources ?? [], id),
+      equipment: updateEquipmentItem(sheet.equipment, id, {
+        name: values.name.trim(),
+        quantity: Number(values.quantity) || 1,
+        description: values.description.trim(),
+      }),
     });
+  }
+
+  function handleEquipmentRemove(id) {
+    persistSheet({
+      ...sheet,
+      equipment: removeEquipmentItem(sheet.equipment, id),
+    });
+  }
+
+  function handleResourceAdd(values) {
+    const resource = createResource({
+      name: values.name.trim(),
+      max: Number(values.max),
+      resetOn: values.resetOn,
+      notes: values.notes.trim(),
+    });
+    persistSheet({
+      ...sheet,
+      resources: [...(sheet.resources ?? []), resource],
+    });
+  }
+
+  function handleResourceUpdate(id, values) {
+    persistSheet({
+      ...sheet,
+      resources: updateResource(sheet.resources, id, {
+        name: values.name.trim(),
+        max: Number(values.max),
+        resetOn: values.resetOn,
+        notes: values.notes.trim(),
+      }),
+    });
+  }
+
+  function handleResourceRemove(id) {
+    persistSheet({ ...sheet, resources: removeResource(sheet.resources, id) });
+  }
+
+  function handleFeatAdd(values) {
+    const feat = createFeat({
+      name: values.name.trim(),
+      description: values.description.trim(),
+    });
+    persistSheet({ ...sheet, feats: [...(sheet.feats ?? []), feat] });
+  }
+
+  function handleFeatUpdate(id, values) {
+    persistSheet({
+      ...sheet,
+      feats: updateFeat(sheet.feats, id, {
+        name: values.name.trim(),
+        description: values.description.trim(),
+      }),
+    });
+  }
+
+  function handleFeatRemove(id) {
+    persistSheet({ ...sheet, feats: removeFeat(sheet.feats, id) });
+  }
+
+  function findSpellListKey(id) {
+    return (sheet.spellcasting?.cantripsKnown ?? []).some(
+      (spell) => spell.index === id,
+    )
+      ? "cantripsKnown"
+      : "spellsKnown";
+  }
+
+  function handleSpellAdd(values) {
+    const spellcasting = addManualSpell(sheet, {
+      name: values.name.trim(),
+      level: values.level,
+      notes: values.notes.trim(),
+    });
+    persistSheet({ ...sheet, spellcasting });
+  }
+
+  function handleSpellUpdate(id, values) {
+    const spellcasting = updateSpell(
+      sheet.spellcasting,
+      findSpellListKey(id),
+      id,
+      {
+        name: values.name.trim(),
+        level: Number(values.level),
+        notes: values.notes.trim(),
+      },
+    );
+    persistSheet({ ...sheet, spellcasting });
+  }
+
+  function handleSpellRemove(id) {
+    const spellcasting = removeSpell(
+      sheet.spellcasting,
+      findSpellListKey(id),
+      id,
+    );
+    persistSheet({ ...sheet, spellcasting });
   }
 
   function handleRest(restType) {
     persistSheet(applyRest(sheet, restType));
   }
 
-  function handleAddEquipment(e) {
+  function resetAttackForm() {
+    setNewAttackName("");
+    setNewAttackToHit("");
+    setNewAttackDamage("");
+    setNewAttackDamageType("");
+    setNewAttackNotes("");
+    setEditingAttackIndex(null);
+    setIsAddingAttack(false);
+  }
+
+  function handleAttackFormSubmit(e) {
     e.preventDefault();
-    if (!newEquipmentName.trim()) return;
+    if (!newAttackName.trim()) return;
 
-    const item = createEquipmentItem({
-      name: newEquipmentName.trim(),
-      quantity: Number(newEquipmentQuantity) || 1,
-      description: newEquipmentDescription.trim(),
-    });
+    if (editingAttackIndex) {
+      persistSheet({
+        ...sheet,
+        attacks: updateAttack(sheet.attacks, editingAttackIndex, {
+          name: newAttackName.trim(),
+          toHit: Number(newAttackToHit) || 0,
+          damage: newAttackDamage.trim(),
+          damageType: newAttackDamageType.trim(),
+          notes: newAttackNotes.trim(),
+        }),
+      });
+    } else {
+      const attack = createAttack({
+        name: newAttackName.trim(),
+        toHit: newAttackToHit,
+        damage: newAttackDamage.trim(),
+        damageType: newAttackDamageType.trim(),
+        notes: newAttackNotes.trim(),
+      });
+      persistSheet({ ...sheet, attacks: [...(sheet.attacks ?? []), attack] });
+    }
 
-    persistSheet({ ...sheet, equipment: [...(sheet.equipment ?? []), item] });
-
-    setNewEquipmentName("");
-    setNewEquipmentQuantity("");
-    setNewEquipmentDescription("");
+    resetAttackForm();
   }
 
-  function handleRemoveEquipment(index) {
-    persistSheet({
-      ...sheet,
-      equipment: removeEquipmentItem(sheet.equipment, index),
-    });
+  function handleEditAttack(attack) {
+    setNewAttackName(attack.name);
+    setNewAttackToHit(attack.toHit);
+    setNewAttackDamage(attack.damage);
+    setNewAttackDamageType(attack.damageType);
+    setNewAttackNotes(attack.notes);
+    setEditingAttackIndex(attack.index);
+    setIsAddingAttack(true);
   }
 
-  function handleAddFeat(e) {
-    e.preventDefault();
-    if (!newFeatName.trim()) return;
-
-    const feat = createFeat({
-      name: newFeatName.trim(),
-      description: newFeatDescription.trim(),
-    });
-
-    persistSheet({ ...sheet, feats: [...(sheet.feats ?? []), feat] });
-
-    setNewFeatName("");
-    setNewFeatDescription("");
-  }
-
-  function handleRemoveFeat(index) {
-    persistSheet({ ...sheet, feats: removeFeat(sheet.feats, index) });
-  }
-
-  function handleAddSpell(e) {
-    e.preventDefault();
-    if (!newSpellName.trim()) return;
-
-    const spellcasting = addManualSpell(sheet, {
-      name: newSpellName.trim(),
-      level: newSpellLevel,
-    });
-
-    persistSheet({ ...sheet, spellcasting });
-
-    setNewSpellName("");
-    setNewSpellLevel("0");
-  }
-
-  function handleRemoveSpell(listKey, index) {
-    persistSheet({
-      ...sheet,
-      spellcasting: removeSpell(sheet.spellcasting, listKey, index),
-    });
+  function handleRemoveAttack(index) {
+    const attack = (sheet.attacks ?? []).find((a) => a.index === index);
+    if (
+      !window.confirm(
+        `Remove "${attack?.name ?? "this attack"}"? This can't be undone.`,
+      )
+    ) {
+      return;
+    }
+    persistSheet({ ...sheet, attacks: removeAttack(sheet.attacks, index) });
   }
 
   function handleSpellSlotChange(level, field, value) {
@@ -365,117 +476,134 @@ function CharacterSheetPage() {
               </button>
             </div>
 
+            <div className="character-sheet__hero-row">
+              <div className="character-sheet__stat-box character-sheet__stat-box--featured">
+                <span className="character-sheet__stat-label">Hit Points</span>
+                <span className="character-sheet__stat-value character-sheet__hp-value">
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input"
+                    value={combat.hitPoints.current}
+                    onChange={(e) => handleHpChange(e.target.value)}
+                    min={0}
+                    max={combat.hitPoints.max}
+                  />
+                  {" / "}
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input"
+                    value={combat.hitPoints.max}
+                    onChange={(e) => handleMaxHpChange(e.target.value)}
+                    min={0}
+                  />
+                  {combat.hitPoints.temporary > 0 &&
+                    ` (+${combat.hitPoints.temporary})`}
+                </span>
+              </div>
+
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Initiative</span>
+                <input
+                  type="number"
+                  className="character-sheet__stat-input"
+                  value={combat.initiative}
+                  onChange={(e) => handleInitiativeChange(e.target.value)}
+                />
+              </div>
+
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Speed</span>
+                <span className="character-sheet__stat-value character-sheet__hp-value">
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input"
+                    value={combat.speed}
+                    onChange={(e) => handleSpeedChange(e.target.value)}
+                    min={0}
+                  />
+                  {" ft"}
+                </span>
+              </div>
+
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Proficiency</span>
+                <span className="character-sheet__stat-value">
+                  +{proficiencyBonus}
+                </span>
+              </div>
+
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Inspiration</span>
+                <input
+                  type="number"
+                  className="character-sheet__stat-input"
+                  value={sheet.inspiration ?? 0}
+                  onChange={(e) => handleInspirationChange(e.target.value)}
+                  min={0}
+                />
+              </div>
+
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Gold</span>
+                <input
+                  type="number"
+                  className="character-sheet__stat-input"
+                  value={sheet.gold ?? 0}
+                  onChange={(e) => handleGoldChange(e.target.value)}
+                  min={0}
+                />
+              </div>
+            </div>
+
+            <section className="character-sheet__stat-row">
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Level</span>
+                <input
+                  type="number"
+                  className="character-sheet__stat-input"
+                  value={sheet.level}
+                  onChange={(e) => handleLevelChange(e.target.value)}
+                  min={1}
+                  max={20}
+                />
+              </div>
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Armor Class</span>
+                <input
+                  type="number"
+                  className="character-sheet__stat-input"
+                  value={combat.armorClass}
+                  onChange={(e) => handleArmorClassChange(e.target.value)}
+                  min={0}
+                />
+              </div>
+              <div className="character-sheet__stat-box">
+                <span className="character-sheet__stat-label">Hit Dice</span>
+                <span className="character-sheet__stat-value character-sheet__hp-value">
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input character-sheet__hp-input--tiny"
+                    value={combat.hitDice.total}
+                    onChange={(e) =>
+                      handleHitDiceChange("total", e.target.value)
+                    }
+                    min={0}
+                    max={20}
+                  />
+                  d
+                  <input
+                    type="number"
+                    className="character-sheet__hp-input character-sheet__hp-input--tiny"
+                    value={combat.hitDice.die ?? ""}
+                    onChange={(e) => handleHitDiceChange("die", e.target.value)}
+                    min={1}
+                  />
+                </span>
+              </div>
+            </section>
+
             <div className="character-sheet__layout">
               <div className="character-sheet__main">
-                <section className="character-sheet__stat-row">
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">Level</span>
-                    <input
-                      type="number"
-                      className="character-sheet__stat-input"
-                      value={sheet.level}
-                      onChange={(e) => handleLevelChange(e.target.value)}
-                      min={1}
-                      max={20}
-                    />
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">
-                      Armor Class
-                    </span>
-                    <input
-                      type="number"
-                      className="character-sheet__stat-input"
-                      value={combat.armorClass}
-                      onChange={(e) => handleArmorClassChange(e.target.value)}
-                      min={0}
-                    />
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">
-                      Initiative
-                    </span>
-                    <input
-                      type="number"
-                      className="character-sheet__stat-input"
-                      value={combat.initiative}
-                      onChange={(e) => handleInitiativeChange(e.target.value)}
-                    />
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">Speed</span>
-                    <span className="character-sheet__stat-value character-sheet__hp-value">
-                      <input
-                        type="number"
-                        className="character-sheet__hp-input"
-                        value={combat.speed}
-                        onChange={(e) => handleSpeedChange(e.target.value)}
-                        min={0}
-                      />
-                      {" ft"}
-                    </span>
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">
-                      Hit Dice
-                    </span>
-                    <span className="character-sheet__stat-value character-sheet__hp-value">
-                      <input
-                        type="number"
-                        className="character-sheet__hp-input character-sheet__hp-input--tiny"
-                        value={combat.hitDice.total}
-                        onChange={(e) =>
-                          handleHitDiceChange("total", e.target.value)
-                        }
-                        min={0}
-                      />
-                      d
-                      <input
-                        type="number"
-                        className="character-sheet__hp-input character-sheet__hp-input--tiny"
-                        value={combat.hitDice.die ?? ""}
-                        onChange={(e) =>
-                          handleHitDiceChange("die", e.target.value)
-                        }
-                        min={1}
-                      />
-                    </span>
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">
-                      Hit Points
-                    </span>
-                    <span className="character-sheet__stat-value character-sheet__hp-value">
-                      <input
-                        type="number"
-                        className="character-sheet__hp-input"
-                        value={combat.hitPoints.current}
-                        onChange={(e) => handleHpChange(e.target.value)}
-                        min={0}
-                        max={combat.hitPoints.max}
-                      />
-                      {" / "}
-                      <input
-                        type="number"
-                        className="character-sheet__hp-input"
-                        value={combat.hitPoints.max}
-                        onChange={(e) => handleMaxHpChange(e.target.value)}
-                        min={0}
-                      />
-                      {combat.hitPoints.temporary > 0 &&
-                        ` (+${combat.hitPoints.temporary})`}
-                    </span>
-                  </div>
-                  <div className="character-sheet__stat-box">
-                    <span className="character-sheet__stat-label">
-                      Proficiency
-                    </span>
-                    <span className="character-sheet__stat-value">
-                      +{proficiencyBonus}
-                    </span>
-                  </div>
-                </section>
-
                 <section className="character-sheet__abilities">
                   {ABILITY_SCORES.map((ability) => {
                     const score = sheet.abilityScores[ability];
@@ -520,381 +648,367 @@ function CharacterSheetPage() {
                 </section>
 
                 <section className="character-sheet__section">
-                  <h2 className="character-sheet__section-title">Resources</h2>
-                  {(sheet.resources ?? []).length === 0 ? (
+                  <div className="character-sheet__section-header-row">
+                    <h2 className="character-sheet__section-title">Attacks</h2>
+                    {!isAddingAttack && (
+                      <button
+                        type="button"
+                        className="character-sheet__resource-add-button"
+                        onClick={() => setIsAddingAttack(true)}
+                      >
+                        Add Weapon
+                      </button>
+                    )}
+                  </div>
+
+                  {(sheet.attacks ?? []).length === 0 ? (
                     <p className="character-sheet__empty-text">
-                      No tracked resources yet. Add one below for anything with
-                      limited uses - Channel Divinity, Lay on Hands, spell
-                      slots, whatever you need.
+                      No attacks recorded yet.
                     </p>
                   ) : (
-                    <ul className="character-sheet__resource-list">
-                      {sheet.resources.map((resource) => (
-                        <li
-                          className="character-sheet__resource-row"
-                          key={resource.id}
+                    <div className="character-sheet__attacks-table">
+                      <div className="character-sheet__attacks-header">
+                        <span>Weapon</span>
+                        <span>To Hit</span>
+                        <span>Damage</span>
+                        <span>Type</span>
+                        <span></span>
+                      </div>
+                      {sheet.attacks.map((attack) => (
+                        <div
+                          className="character-sheet__attacks-row"
+                          key={attack.index}
                         >
-                          <span className="character-sheet__resource-name">
-                            {resource.name}
+                          <span className="character-sheet__attacks-name">
+                            {attack.name}
+                            {attack.notes && (
+                              <ul className="character-sheet__attacks-notes-list">
+                                {formatNotesLines(attack.notes).map(
+                                  (line, i) => (
+                                    <li key={i}>{line}</li>
+                                  ),
+                                )}
+                              </ul>
+                            )}
                           </span>
-                          <span className="character-sheet__resource-count">
-                            <input
-                              type="number"
-                              className="character-sheet__resource-input"
-                              value={resource.current}
-                              onChange={(e) =>
-                                handleResourceCurrentChange(
-                                  resource.id,
-                                  e.target.value,
-                                )
-                              }
-                              min={0}
-                              max={resource.max}
-                            />
-                            {" / "}
-                            {resource.max}
+                          <span className="character-sheet__attacks-cell">
+                            {formatModifier(attack.toHit)}
                           </span>
-                          <span className="character-sheet__resource-reset">
-                            {resource.resetOn === "short"
-                              ? "Short Rest"
-                              : "Long Rest"}
+                          <span className="character-sheet__attacks-cell">
+                            {attack.damage}
                           </span>
-                          <button
-                            type="button"
-                            className="character-sheet__resource-remove"
-                            onClick={() => handleRemoveResource(resource.id)}
-                          >
-                            Remove
-                          </button>
-                        </li>
+                          <span className="character-sheet__attacks-cell">
+                            {attack.damageType}
+                          </span>
+                          <span className="character-sheet__attacks-actions">
+                            <button
+                              type="button"
+                              className="character-sheet__resource-remove"
+                              onClick={() => handleEditAttack(attack)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="character-sheet__resource-remove"
+                              onClick={() => handleRemoveAttack(attack.index)}
+                            >
+                              Remove
+                            </button>
+                          </span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   )}
 
-                  <form
-                    className="character-sheet__resource-form"
-                    onSubmit={handleAddResource}
-                  >
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input"
-                      placeholder="Resource name (e.g. Channel Divinity)"
-                      value={newResourceName}
-                      onChange={(e) => setNewResourceName(e.target.value)}
-                    />
-                    <input
-                      type="number"
-                      className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
-                      placeholder="Max"
-                      value={newResourceMax}
-                      onChange={(e) => setNewResourceMax(e.target.value)}
-                      min={1}
-                    />
-                    <select
-                      className="character-sheet__resource-form-select"
-                      value={newResourceResetOn}
-                      onChange={(e) => setNewResourceResetOn(e.target.value)}
+                  {isAddingAttack && (
+                    <form
+                      className="character-sheet__attack-form"
+                      onSubmit={handleAttackFormSubmit}
                     >
-                      <option value="long">Long Rest</option>
-                      <option value="short">Short Rest</option>
-                    </select>
-                    <button
-                      type="submit"
-                      className="character-sheet__resource-add-button"
-                    >
-                      Add Resource
-                    </button>
-                  </form>
+                      <div className="character-sheet__resource-form">
+                        <input
+                          type="text"
+                          className="character-sheet__resource-form-input"
+                          placeholder="Weapon name (e.g. Night Terror Longsword)"
+                          value={newAttackName}
+                          onChange={(e) => setNewAttackName(e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
+                          placeholder="To Hit"
+                          value={newAttackToHit}
+                          onChange={(e) => setNewAttackToHit(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
+                          placeholder="Damage (e.g. 2d8+10)"
+                          value={newAttackDamage}
+                          onChange={(e) => setNewAttackDamage(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
+                          placeholder="Type (e.g. Slashing)"
+                          value={newAttackDamageType}
+                          onChange={(e) =>
+                            setNewAttackDamageType(e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <textarea
+                        className="character-sheet__textarea"
+                        placeholder="Notes (optional) - one line per bullet point"
+                        value={newAttackNotes}
+                        onChange={(e) => setNewAttackNotes(e.target.value)}
+                        rows={3}
+                      />
+
+                      <div className="character-sheet__attack-form-actions">
+                        <button
+                          type="button"
+                          className="character-sheet__resource-remove"
+                          onClick={resetAttackForm}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="character-sheet__resource-add-button"
+                        >
+                          {editingAttackIndex ? "Save Changes" : "Add Attack"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </section>
 
                 <section className="character-sheet__section">
-                  <h2 className="character-sheet__section-title">Equipment</h2>
-                  {(sheet.equipment ?? []).length === 0 ? (
-                    <p className="character-sheet__empty-text">
-                      No equipment recorded yet.
-                    </p>
-                  ) : (
-                    <ul className="character-sheet__resource-list">
-                      {sheet.equipment.map((item) => (
-                        <li
-                          className="character-sheet__resource-row"
-                          key={item.index}
-                        >
-                          <span className="character-sheet__resource-name">
-                            {item.name}
-                            {item.quantity > 1 ? ` x${item.quantity}` : ""}
-                            {item.description && (
-                              <span className="character-sheet__item-description">
-                                {item.description}
-                              </span>
-                            )}
-                          </span>
-                          <button
-                            type="button"
-                            className="character-sheet__resource-remove"
-                            onClick={() => handleRemoveEquipment(item.index)}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <form
-                    className="character-sheet__resource-form"
-                    onSubmit={handleAddEquipment}
-                  >
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input"
-                      placeholder="Item name (e.g. Night Terror Longsword)"
-                      value={newEquipmentName}
-                      onChange={(e) => setNewEquipmentName(e.target.value)}
-                    />
-                    <input
-                      type="number"
-                      className="character-sheet__resource-form-input character-sheet__resource-form-input--small"
-                      placeholder="Qty"
-                      value={newEquipmentQuantity}
-                      onChange={(e) => setNewEquipmentQuantity(e.target.value)}
-                      min={1}
-                    />
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input character-sheet__resource-form-input--wide"
-                      placeholder="Description (optional)"
-                      value={newEquipmentDescription}
-                      onChange={(e) =>
-                        setNewEquipmentDescription(e.target.value)
-                      }
-                    />
-                    <button
-                      type="submit"
-                      className="character-sheet__resource-add-button"
-                    >
-                      Add Item
-                    </button>
-                  </form>
+                  <EditableItemList
+                    title="Resources"
+                    items={sheet.resources ?? []}
+                    getItemId={(item) => item.id}
+                    fields={[
+                      {
+                        key: "name",
+                        type: "text",
+                        placeholder: "Resource name (e.g. Channel Divinity)",
+                      },
+                      {
+                        key: "max",
+                        type: "number",
+                        placeholder: "Max",
+                        width: "small",
+                        min: 1,
+                      },
+                      {
+                        key: "resetOn",
+                        type: "select",
+                        defaultValue: "long",
+                        options: [
+                          { value: "long", label: "Long Rest" },
+                          { value: "short", label: "Short Rest" },
+                        ],
+                      },
+                      {
+                        key: "notes",
+                        type: "textarea",
+                        placeholder:
+                          "Notes (optional) - one line per bullet point",
+                      },
+                    ]}
+                    emptyText="No tracked resources yet. Add one below for anything with limited uses - Channel Divinity, Lay on Hands, spell slots, whatever you need."
+                    addButtonLabel="Add Resource"
+                    onAdd={handleResourceAdd}
+                    onUpdate={handleResourceUpdate}
+                    onRemove={handleResourceRemove}
+                    extraRowContent={(resource) => (
+                      <>
+                        <span className="character-sheet__resource-count">
+                          <input
+                            type="number"
+                            className="character-sheet__resource-input"
+                            value={resource.current}
+                            onChange={(e) =>
+                              handleResourceCurrentChange(
+                                resource.id,
+                                e.target.value,
+                              )
+                            }
+                            min={0}
+                            max={resource.max}
+                          />
+                          {" / "}
+                          {resource.max}
+                        </span>
+                        <span className="character-sheet__resource-reset">
+                          {resource.resetOn === "short"
+                            ? "Short Rest"
+                            : "Long Rest"}
+                        </span>
+                      </>
+                    )}
+                  />
                 </section>
 
                 <section className="character-sheet__section">
-                  <h2 className="character-sheet__section-title">Feats</h2>
-                  {(sheet.feats?.length ?? 0) === 0 ? (
-                    <p className="character-sheet__empty-text">No feats yet.</p>
-                  ) : (
-                    <ul className="character-sheet__resource-list">
-                      {sheet.feats.map((feat) => (
-                        <li
-                          className="character-sheet__resource-row"
-                          key={feat.index}
-                        >
-                          <span className="character-sheet__resource-name">
-                            {feat.name}
-                            {feat.description && (
-                              <span className="character-sheet__item-description">
-                                {feat.description}
-                              </span>
-                            )}
-                          </span>
-                          <button
-                            type="button"
-                            className="character-sheet__resource-remove"
-                            onClick={() => handleRemoveFeat(feat.index)}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <EditableItemList
+                    title="Equipment"
+                    items={sheet.equipment ?? []}
+                    getItemId={(item) => item.index}
+                    fields={[
+                      {
+                        key: "name",
+                        type: "text",
+                        placeholder: "Item name (e.g. Night Terror Longsword)",
+                      },
+                      {
+                        key: "quantity",
+                        type: "number",
+                        placeholder: "Qty",
+                        width: "small",
+                        min: 1,
+                        defaultValue: "1",
+                      },
+                      {
+                        key: "description",
+                        type: "textarea",
+                        placeholder:
+                          "Description (optional) - one line per bullet point",
+                      },
+                    ]}
+                    formatPrimaryLabel={(item) =>
+                      `${item.name}${item.quantity > 1 ? ` x${item.quantity}` : ""}`
+                    }
+                    emptyText="No equipment recorded yet."
+                    addButtonLabel="Add Item"
+                    onAdd={handleEquipmentAdd}
+                    onUpdate={handleEquipmentUpdate}
+                    onRemove={handleEquipmentRemove}
+                  />
+                </section>
 
-                  <form
-                    className="character-sheet__resource-form"
-                    onSubmit={handleAddFeat}
-                  >
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input"
-                      placeholder="Feat name (e.g. Shield Master)"
-                      value={newFeatName}
-                      onChange={(e) => setNewFeatName(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input character-sheet__resource-form-input--wide"
-                      placeholder="Description (optional)"
-                      value={newFeatDescription}
-                      onChange={(e) => setNewFeatDescription(e.target.value)}
-                    />
-                    <button
-                      type="submit"
-                      className="character-sheet__resource-add-button"
-                    >
-                      Add Feat
-                    </button>
-                  </form>
+                <section className="character-sheet__section">
+                  <EditableItemList
+                    title="Feats"
+                    items={sheet.feats ?? []}
+                    getItemId={(item) => item.index}
+                    fields={[
+                      {
+                        key: "name",
+                        type: "text",
+                        placeholder: "Feat name (e.g. Shield Master)",
+                      },
+                      {
+                        key: "description",
+                        type: "textarea",
+                        placeholder:
+                          "Description (optional) - one line per bullet point",
+                      },
+                    ]}
+                    emptyText="No feats yet."
+                    addButtonLabel="Add Feat"
+                    onAdd={handleFeatAdd}
+                    onUpdate={handleFeatUpdate}
+                    onRemove={handleFeatRemove}
+                  />
                 </section>
 
                 <section className="character-sheet__section">
                   <h2 className="character-sheet__section-title">
-                    Spellcasting
+                    Spell Slots
                   </h2>
-                  {sheet.spellcasting ? (
-                    <>
-                      <p className="character-sheet__subsection-title">
-                        Spell Slots
-                      </p>
-                      <ul className="character-sheet__spell-slots-grid">
-                        {getSpellSlots(sheet.spellcasting).map((slot) => (
-                          <li
-                            className="character-sheet__spell-slot-card"
-                            key={slot.level}
-                          >
-                            <span className="character-sheet__spell-slot-label">
-                              Level {slot.level}
-                            </span>
-                            <span className="character-sheet__spell-slot-count">
-                              <input
-                                type="number"
-                                className="character-sheet__hp-input character-sheet__hp-input--tiny"
-                                value={slot.current}
-                                onChange={(e) =>
-                                  handleSpellSlotChange(
-                                    slot.level,
-                                    "current",
-                                    e.target.value,
-                                  )
-                                }
-                                min={0}
-                                max={slot.max}
-                              />
-                              {" / "}
-                              <input
-                                type="number"
-                                className="character-sheet__hp-input character-sheet__hp-input--tiny"
-                                value={slot.max}
-                                onChange={(e) =>
-                                  handleSpellSlotChange(
-                                    slot.level,
-                                    "max",
-                                    e.target.value,
-                                  )
-                                }
-                                min={0}
-                              />
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
 
-                      {sheet.spellcasting.cantripsKnown.length > 0 && (
-                        <>
-                          <p className="character-sheet__subsection-title">
-                            Cantrips
-                          </p>
-                          <ul className="character-sheet__resource-list">
-                            {sheet.spellcasting.cantripsKnown.map((spell) => (
-                              <li
-                                className="character-sheet__resource-row"
-                                key={spell.index}
-                              >
-                                <span className="character-sheet__resource-name">
-                                  {spell.name}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="character-sheet__resource-remove"
-                                  onClick={() =>
-                                    handleRemoveSpell(
-                                      "cantripsKnown",
-                                      spell.index,
-                                    )
-                                  }
-                                >
-                                  Remove
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                      {sheet.spellcasting.spellsKnown.length > 0 && (
-                        <>
-                          <p className="character-sheet__subsection-title">
-                            Spells Known
-                          </p>
-                          <ul className="character-sheet__resource-list">
-                            {[...sheet.spellcasting.spellsKnown]
-                              .sort((a, b) => (a.level ?? 0) - (b.level ?? 0))
-                              .map((spell) => (
-                                <li
-                                  className="character-sheet__resource-row"
-                                  key={spell.index}
-                                >
-                                  <span className="character-sheet__resource-name">
-                                    {spell.name}
-                                    {spell.level != null && (
-                                      <span className="character-sheet__item-description">
-                                        Level {spell.level}
-                                      </span>
-                                    )}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    className="character-sheet__resource-remove"
-                                    onClick={() =>
-                                      handleRemoveSpell(
-                                        "spellsKnown",
-                                        spell.index,
-                                      )
-                                    }
-                                  >
-                                    Remove
-                                  </button>
-                                </li>
-                              ))}
-                          </ul>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <p className="character-sheet__empty-text">
-                      Not a spellcaster yet.
-                    </p>
-                  )}
-
-                  <form
-                    className="character-sheet__resource-form"
-                    onSubmit={handleAddSpell}
-                  >
-                    <input
-                      type="text"
-                      className="character-sheet__resource-form-input"
-                      placeholder="Spell name (e.g. Bless)"
-                      value={newSpellName}
-                      onChange={(e) => setNewSpellName(e.target.value)}
-                    />
-                    <select
-                      className="character-sheet__resource-form-select"
-                      value={newSpellLevel}
-                      onChange={(e) => setNewSpellLevel(e.target.value)}
-                    >
-                      <option value="0">Cantrip</option>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((lvl) => (
-                        <option key={lvl} value={lvl}>
-                          Level {lvl}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="submit"
-                      className="character-sheet__resource-add-button"
-                    >
-                      Add Spell
-                    </button>
-                  </form>
+                  <ul className="character-sheet__spell-slots-grid">
+                    {getSpellSlots(sheet.spellcasting).map((slot) => (
+                      <li
+                        className="character-sheet__spell-slot-card"
+                        key={slot.level}
+                      >
+                        <span className="character-sheet__spell-slot-label">
+                          Level {slot.level}
+                        </span>
+                        <span className="character-sheet__spell-slot-count">
+                          <input
+                            type="number"
+                            className="character-sheet__hp-input character-sheet__hp-input--tiny"
+                            value={slot.current}
+                            onChange={(e) =>
+                              handleSpellSlotChange(
+                                slot.level,
+                                "current",
+                                e.target.value,
+                              )
+                            }
+                            min={0}
+                            max={slot.max}
+                          />
+                          {" / "}
+                          <input
+                            type="number"
+                            className="character-sheet__hp-input character-sheet__hp-input--tiny"
+                            value={slot.max}
+                            onChange={(e) =>
+                              handleSpellSlotChange(
+                                slot.level,
+                                "max",
+                                e.target.value,
+                              )
+                            }
+                            min={0}
+                          />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </section>
+
+                <EditableItemList
+                  title="Spells"
+                  items={[
+                    ...(sheet.spellcasting?.cantripsKnown ?? []),
+                    ...(sheet.spellcasting?.spellsKnown ?? []),
+                  ].sort((a, b) => (a.level ?? 0) - (b.level ?? 0))}
+                  getItemId={(item) => item.index}
+                  fields={[
+                    {
+                      key: "name",
+                      type: "text",
+                      placeholder: "Spell name (e.g. Bless)",
+                    },
+                    {
+                      key: "level",
+                      type: "select",
+                      defaultValue: "0",
+                      options: [
+                        { value: "0", label: "Cantrip" },
+                        ...[1, 2, 3, 4, 5, 6, 7, 8, 9].map((lvl) => ({
+                          value: String(lvl),
+                          label: `Level ${lvl}`,
+                        })),
+                      ],
+                    },
+                    {
+                      key: "notes",
+                      type: "textarea",
+                      placeholder:
+                        "Notes (optional) - one line per bullet point",
+                    },
+                  ]}
+                  emptyText="No spells recorded yet."
+                  addButtonLabel="Add Spell"
+                  onAdd={handleSpellAdd}
+                  onUpdate={handleSpellUpdate}
+                  onRemove={handleSpellRemove}
+                  extraRowContent={(spell) => (
+                    <span className="character-sheet__resource-reset">
+                      {spell.level === 0 ? "Cantrip" : `Level ${spell.level}`}
+                    </span>
+                  )}
+                />
 
                 <section className="character-sheet__section">
                   <h2 className="character-sheet__section-title">Companion</h2>

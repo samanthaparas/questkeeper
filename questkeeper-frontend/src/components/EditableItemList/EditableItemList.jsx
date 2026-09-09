@@ -1,0 +1,224 @@
+import { useState } from "react";
+import "../../pages/CharacterSheetPage/CharacterSheetPage.css";
+
+function formatNotesLines(notes) {
+  return (notes ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function createEmptyValues(fields) {
+  return fields.reduce((acc, field) => {
+    acc[field.key] = field.defaultValue ?? "";
+    return acc;
+  }, {});
+}
+
+function EditableItemField({ field, value, onChange }) {
+  if (field.type === "select") {
+    return (
+      <select
+        className="character-sheet__resource-form-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {field.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  const className = `character-sheet__resource-form-input${
+    field.width ? ` character-sheet__resource-form-input--${field.width}` : ""
+  }`;
+
+  return (
+    <input
+      type={field.type}
+      className={className}
+      placeholder={field.placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      min={field.type === "number" ? field.min : undefined}
+    />
+  );
+}
+
+function EditableItemList({
+  title,
+  items,
+  getItemId,
+  fields,
+  formatPrimaryLabel,
+  emptyText,
+  addButtonLabel,
+  onAdd,
+  onUpdate,
+  onRemove,
+  extraRowContent,
+}) {
+  const primaryField = fields[0];
+  const textareaField = fields.find((field) => field.type === "textarea");
+  const formFields = fields.filter((field) => field.type !== "textarea");
+
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [values, setValues] = useState(() => createEmptyValues(fields));
+
+  function resetForm() {
+    setValues(createEmptyValues(fields));
+    setEditingId(null);
+    setIsAdding(false);
+  }
+
+  function handleFieldChange(key, value) {
+    setValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!String(values[primaryField.key] ?? "").trim()) return;
+
+    if (editingId) {
+      onUpdate(editingId, values);
+    } else {
+      onAdd(values);
+    }
+
+    resetForm();
+  }
+
+  function handleEdit(item) {
+    const nextValues = fields.reduce((acc, field) => {
+      acc[field.key] = item[field.key] != null ? String(item[field.key]) : "";
+      return acc;
+    }, {});
+    setValues(nextValues);
+    setEditingId(getItemId(item));
+    setIsAdding(true);
+  }
+
+  return (
+    <section className="character-sheet__section">
+      <div className="character-sheet__section-header-row">
+        <h2 className="character-sheet__section-title">{title}</h2>
+        {!isAdding && (
+          <button
+            type="button"
+            className="character-sheet__resource-add-button"
+            onClick={() => setIsAdding(true)}
+          >
+            {addButtonLabel}
+          </button>
+        )}
+      </div>
+
+      {items.length === 0 ? (
+        <p className="character-sheet__empty-text">{emptyText}</p>
+      ) : (
+        <ul className="character-sheet__resource-list">
+          {items.map((item) => {
+            const id = getItemId(item);
+            const notes = textareaField ? item[textareaField.key] : "";
+
+            return (
+              <li className="character-sheet__resource-row" key={id}>
+                <span className="character-sheet__resource-name">
+                  {formatPrimaryLabel
+                    ? formatPrimaryLabel(item)
+                    : item[primaryField.key]}
+                  {notes && (
+                    <ul className="character-sheet__attacks-notes-list">
+                      {formatNotesLines(notes).map((line, i) => (
+                        <li key={i}>{line}</li>
+                      ))}
+                    </ul>
+                  )}
+                </span>
+
+                {extraRowContent && extraRowContent(item)}
+
+                <span className="character-sheet__attacks-actions">
+                  <button
+                    type="button"
+                    className="character-sheet__resource-remove"
+                    onClick={() => handleEdit(item)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="character-sheet__resource-remove"
+                    onClick={() => {
+                      const label = formatPrimaryLabel
+                        ? formatPrimaryLabel(item)
+                        : item[primaryField.key];
+                      if (
+                        window.confirm(
+                          `Remove "${label}"? This can't be undone.`,
+                        )
+                      ) {
+                        onRemove(id);
+                      }
+                    }}
+                  >
+                    Remove
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {isAdding && (
+        <form className="character-sheet__attack-form" onSubmit={handleSubmit}>
+          <div className="character-sheet__resource-form">
+            {formFields.map((field) => (
+              <EditableItemField
+                key={field.key}
+                field={field}
+                value={values[field.key]}
+                onChange={(value) => handleFieldChange(field.key, value)}
+              />
+            ))}
+          </div>
+
+          {textareaField && (
+            <textarea
+              className="character-sheet__textarea"
+              placeholder={textareaField.placeholder}
+              value={values[textareaField.key]}
+              onChange={(e) =>
+                handleFieldChange(textareaField.key, e.target.value)
+              }
+              rows={3}
+            />
+          )}
+
+          <div className="character-sheet__attack-form-actions">
+            <button
+              type="button"
+              className="character-sheet__resource-remove"
+              onClick={resetForm}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="character-sheet__resource-add-button"
+            >
+              {editingId ? "Save Changes" : addButtonLabel}
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
+
+export default EditableItemList;
