@@ -144,6 +144,7 @@ function addSpellToSpellcasting(spellcasting, characterClass, spellChoice) {
     index: spellChoice.spellIndex,
     name: spellChoice.spellName,
     level: spellChoice.spellLevel,
+    notes: "",
   };
 
   if (spellChoice.spellLevel === 0) {
@@ -279,6 +280,8 @@ export function createCharacterSheet(overrides = {}) {
 
     name: "Unnamed Character",
     level: 1,
+    inspiration: 0,
+    gold: 0,
     experienceMode: "guided", // "guided" | "freeForAll"
 
     race: null,
@@ -299,6 +302,7 @@ export function createCharacterSheet(overrides = {}) {
     },
 
     equipment: [],
+    attacks: [],
     spellcasting: null,
     feats: [],
     resources: [],
@@ -320,13 +324,14 @@ export function createPendingLevelUp(targetLevel, stepKeys) {
   };
 }
 
-export function createResource({ name, max, resetOn }) {
+export function createResource({ name, max, resetOn, notes }) {
   return {
     id: crypto.randomUUID(),
     name,
     max,
     current: max,
     resetOn, // "short" | "long"
+    notes: notes || "",
   };
 }
 
@@ -340,6 +345,17 @@ export function setResourceCurrent(resources, id, value) {
 
 export function removeResource(resources, id) {
   return (resources ?? []).filter((resource) => resource.id !== id);
+}
+
+export function updateResource(resources, id, updates) {
+  return (resources ?? []).map((resource) => {
+    if (resource.id !== id) return resource;
+    const updated = { ...resource, ...updates };
+    if (updates.max !== undefined) {
+      updated.current = Math.min(resource.current, updates.max);
+    }
+    return updated;
+  });
 }
 
 export function setCurrentHp(hitPoints, value) {
@@ -395,6 +411,33 @@ export function removeEquipmentItem(equipment, index) {
   return (equipment ?? []).filter((item) => item.index !== index);
 }
 
+export function updateEquipmentItem(equipment, index, updates) {
+  return (equipment ?? []).map((item) =>
+    item.index === index ? { ...item, ...updates } : item,
+  );
+}
+
+export function createAttack({ name, toHit, damage, damageType, notes }) {
+  return {
+    index: crypto.randomUUID(),
+    name,
+    toHit: Number(toHit) || 0,
+    damage: damage || "",
+    damageType: damageType || "",
+    notes: notes || "",
+  };
+}
+
+export function removeAttack(attacks, index) {
+  return (attacks ?? []).filter((attack) => attack.index !== index);
+}
+
+export function updateAttack(attacks, index, updates) {
+  return (attacks ?? []).map((attack) =>
+    attack.index === index ? { ...attack, ...updates } : attack,
+  );
+}
+
 export function createFeat({ name, description }) {
   return {
     index: crypto.randomUUID(),
@@ -407,7 +450,13 @@ export function removeFeat(feats, index) {
   return (feats ?? []).filter((feat) => feat.index !== index);
 }
 
-export function addManualSpell(sheet, { name, level }) {
+export function updateFeat(feats, index, updates) {
+  return (feats ?? []).map((feat) =>
+    feat.index === index ? { ...feat, ...updates } : feat,
+  );
+}
+
+export function addManualSpell(sheet, { name, level, notes }) {
   const base = sheet.spellcasting ?? {
     type: sheet.class?.spellcastingType ?? "known",
     cantripsKnown: [],
@@ -415,7 +464,12 @@ export function addManualSpell(sheet, { name, level }) {
   };
 
   const numericLevel = Number(level);
-  const entry = { index: crypto.randomUUID(), name, level: numericLevel };
+  const entry = {
+    index: crypto.randomUUID(),
+    name,
+    level: numericLevel,
+    notes: notes || "",
+  };
 
   if (numericLevel === 0) {
     return { ...base, cantripsKnown: [...base.cantripsKnown, entry] };
@@ -428,6 +482,28 @@ export function removeSpell(spellcasting, listKey, index) {
   return {
     ...spellcasting,
     [listKey]: spellcasting[listKey].filter((spell) => spell.index !== index),
+  };
+}
+
+export function updateSpell(spellcasting, listKey, index, updates) {
+  const current = spellcasting[listKey].find((spell) => spell.index === index);
+  if (!current) return spellcasting;
+
+  const updated = {
+    ...current,
+    ...updates,
+    level: Number(updates.level ?? current.level),
+  };
+  const targetListKey = updated.level === 0 ? "cantripsKnown" : "spellsKnown";
+
+  const withoutOld = {
+    ...spellcasting,
+    [listKey]: spellcasting[listKey].filter((spell) => spell.index !== index),
+  };
+
+  return {
+    ...withoutOld,
+    [targetListKey]: [...withoutOld[targetListKey], updated],
   };
 }
 
