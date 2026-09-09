@@ -19,20 +19,25 @@ QuestKeeper is a full-stack reference companion for the **2014 version of Dungeo
 - Global search across classes, races, spells, and backgrounds.
 - Dedicated category browsing pages.
 - Selectable result cards with an in-page detail panel.
+- Guided character creation wizard (race, class, background, ability scores, class skill choices) that derives real starting stats instead of flat defaults.
+- A full character sheet with directly editable core stats, ability scores, and skills (all 18, with computed modifiers).
+- Level-up flow with hit points, ability score improvements or feats, and spell learning.
+- Manual tracking for equipment, attacks, feats, spells (with per-level spell slots), and per-rest limited-use resources — all editable after creation, not just at creation time.
 - Loading, empty, and error feedback for API-driven views.
 - Responsive navigation and a mobile result-to-detail flow.
-- Reusable React components for search, cards, navigation, and details.
+- Reusable React components for search, cards, navigation, details, and editable list sections.
 
 ## Tech stack
 
-| Area | Technology |
-| --- | --- |
-| Frontend | React 19, React Router, Vite, CSS |
-| Backend | Node.js, Express, REST routes |
-| Data | D&D 5e SRD API (2014 endpoints) |
-| Repository | npm workspaces monorepo |
+| Area       | Technology                        |
+| ---------- | --------------------------------- |
+| Frontend   | React 19, React Router, Vite, CSS |
+| Backend    | Node.js, Express, REST routes     |
+| Testing    | Vitest                            |
+| Data       | D&D 5e SRD API (2014 endpoints)   |
+| Repository | npm workspaces monorepo           |
 
-The project is being developed incrementally toward accounts, saved content, character sheets, gameplay tracking, and guided character progression. For the complete product direction, content policy, and development milestones, see [QuestKeeper Project Vision](docs/QUESTKEEPER_VISION.md).
+The project is being developed incrementally toward accounts, saved content, and further gameplay tracking. Character sheets (creation, leveling, and full manual editing) are already built and stored locally per browser. For the complete product direction, content policy, and development milestones, see [QuestKeeper Project Vision](docs/QUESTKEEPER_VISION.md).
 
 ## Current implementation
 
@@ -43,8 +48,11 @@ QuestKeeper currently includes:
 - Category pages for classes, races, spells, and backgrounds.
 - Global search across the available categories.
 - Detail panels for individual results.
+- A guided character creation wizard and a full character sheet page, covering stats, skills, spellcasting (including spell slots), attacks, equipment, feats, resources, and a companion/notes area — all directly editable after creation.
+- A level-up flow for existing characters (hit points, ability score improvements or feats, new spells).
 - A backend connection to the D&D 5e SRD API's 2014 endpoints.
 - Root npm workspace commands for running both applications from the monorepo.
+- A growing Vitest suite covering the character sheet's pure game-logic functions.
 
 QuestKeeper is actively developed, with features added incrementally so the architecture, data sources, and user experience can evolve deliberately.
 
@@ -158,15 +166,16 @@ The deployed frontend uses `VITE_API_BASE_URL=https://questkeeper-api.onrender.c
 
 Run these commands from the repository root:
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev:frontend` | Start the Vite frontend development server |
-| `npm run dev:backend` | Start the Express backend with automatic restarts |
-| `npm run start:backend` | Start the Express backend without Nodemon |
-| `npm run build` | Create a production frontend build |
-| `npm run lint` | Check the frontend source with ESLint |
+| Command                                                | Purpose                                           |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| `npm run dev:frontend`                                 | Start the Vite frontend development server        |
+| `npm run dev:backend`                                  | Start the Express backend with automatic restarts |
+| `npm run start:backend`                                | Start the Express backend without Nodemon         |
+| `npm run build`                                        | Create a production frontend build                |
+| `npm run lint`                                         | Check the frontend source with ESLint             |
+| `npm run test --workspace questkeeper-frontend -- run` | Run the Vitest suite once                         |
 
-Automated tests have not been added yet.
+Automated tests cover the character sheet's pure functions (ability scores, hit points, level-up, resources, rests). Backend and component-level tests have not been added yet.
 
 ## Engineering decisions and challenges
 
@@ -188,6 +197,12 @@ Automated tests have not been added yet.
 
 **Current solution:** The data path was audited. QuestKeeper does not remove any background results; the upstream 2014 SRD source contains only Acolyte. Adding other backgrounds is therefore a content-source and licensing decision rather than a frontend bug fix.
 
+### The character sheet needed to support real, messy, homebrew characters
+
+**Problem:** A guided creation wizard tied to SRD data works well for starting a new character, but real, actively-played characters accumulate content the SRD doesn't have — homebrew magic items, DM-granted resources, non-SRD feats — and need every stat editable as the character changes, not just at creation.
+
+**Current solution:** The character sheet page supports direct editing of every core stat, plus freeform (non-SRD-linked) add/edit/remove for equipment, attacks, feats, and spells, each with an optional multi-line notes field rendered as bullet points. A generic `EditableItemList` component backs four of those sections so the same add/edit/remove/confirm-before-delete behavior isn't reimplemented per section.
+
 ### Public D&D websites contain content that may not be reusable
 
 **Problem:** Material being publicly readable does not automatically mean QuestKeeper may copy and redistribute it. Attribution alone does not grant that permission.
@@ -203,12 +218,13 @@ Automated tests have not been added yet.
 ## Known limitations
 
 - Content is limited to what the current 2014 SRD API provides.
-- Background coverage currently includes only Acolyte.
+- Background coverage currently includes only Acolyte (freeform manual entry works around this for an individual character, but the browsable Backgrounds page is still SRD-limited).
 - Source, edition, license, and attribution metadata are not yet shown for individual entries.
 - Global search depends on all category requests succeeding together.
 - Upstream requests do not yet use application-level caching or explicit timeouts.
-- Accounts, favorites, character sheets, and gameplay tracking are not implemented.
-- Automated frontend and backend tests are not implemented.
+- Character sheets are stored in the browser's local storage only — there are no accounts or cross-device sync yet.
+- Equipment/proficiency _choices_ (e.g. "a martial weapon or two simple weapons") aren't modeled during guided creation; only guaranteed starting gear is, plus freeform manual entry for anything else.
+- Test coverage is limited to the frontend's pure game-logic functions — no backend or component/UI tests yet.
 - The free backend service may take approximately a minute to wake after a period of inactivity.
 
 ## Planned development
@@ -216,14 +232,13 @@ Automated tests have not been added yet.
 The current high-level sequence is:
 
 1. Keep the architecture, vision, setup, and content policies documented.
-2. Improve search and browsing for approved reusable data.
-3. Add normalized backend models and source provenance.
-4. Add response validation, caching, timeouts, and automated tests.
-5. Add accounts, favorites, and saved content.
-6. Build a basic character sheet with statistics and hit point tracking.
-7. Add inventory, equipment, and spell management.
-8. Add guided character creation and level-up choices.
-9. Explore AI-assisted character recommendations after the underlying rules and character data are reliable.
+2. Grant starting spells automatically at character creation for casters, and model equipment/proficiency choices during guided creation (both currently require a manual workaround).
+3. Improve search and browsing for approved reusable data, and add more legally-sourced content (e.g. the 2024 SRD's additional backgrounds and feats).
+4. Add normalized backend models, source provenance, response validation, caching, and timeouts.
+5. Expand automated test coverage to the backend and to UI components, not just pure functions.
+6. Add accounts, favorites, and cross-device saved content (character sheets currently live in localStorage only).
+7. Add richer companion/mount tracking (currently a freeform text field) and a dedicated attacks/weapons-focused layout pass.
+8. Explore AI-assisted character recommendations after the underlying rules and character data are reliable.
 
 The roadmap is intentionally incremental. Each feature should be small enough to understand, implement, test, and review before moving to the next one.
 
